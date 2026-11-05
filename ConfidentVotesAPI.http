@@ -1,0 +1,42 @@
+@ConfidentVotesAPI_HostAddress = http://localhost:5284
+
+###
+POST {{ConfidentVotesAPI_HostAddress}}/api/users
+Content-Type: application/json
+API-SIGNATURE: CONFIDENT_API_kaf@#fam
+
+{
+    "id": 1,
+    "full_name": "KAFANDO THOMAS",
+    "email": "kaf",
+    "user_name": "kafthom",
+}
+###
+GET {{ConfidentVotesAPI_HostAddress}}/api/users
+Accept: application/json
+API-SIGNATURE: CONFIDENT_API_kaf@#fam
+###
+GET {{ConfidentVotesAPI_HostAddress}}/api/users
+API-SIGNATURE: CONFIDENT_API_kaf@#fam
+
+###
+POST {{ConfidentVotesAPI_HostAddress}}/api/votes
+Content-Type: application/json
+API-SIGNATURE: CONFIDENT_API_kaf@#fam
+
+{
+    "id": 1,
+    "name": "Product 1",
+    "description": "it is the best product",
+    "initiator_id": 1
+}
+###
+GET {{ConfidentVotesAPI_HostAddress}}/api/users/uurj/huuf/image.png
+Accept: application/json
+
+###
+GET {{ConfidentVotesAPI_HostAddress}}/api/search?query=thomas&page=5
+
+
+###
+DELETE {{ConfidentVotesAPI_HostAddress}}/api/users/
