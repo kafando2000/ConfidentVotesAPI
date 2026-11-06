@@ -9,7 +9,7 @@ namespace ConfidentVotesAPI.Controllers
 {
     [ApiController]
 
-    [Route("api/[controller]")]
+    [Route("confidentvotesapi/votes")]
     // the class must be public
     public class VotesController : ControllerBase
     {   

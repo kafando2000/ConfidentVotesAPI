@@ -10,7 +10,8 @@ namespace ConfidentUsersAPI.Controllers
 {
     [ApiController]
 
-    [Route("api/[controller]")]
+    //[Route("confidentvotesapi/[controller]")]
+    [Route("confidentvotesapi/users")]
     // the class must be public
     public class UsersController : ControllerBase
     {   

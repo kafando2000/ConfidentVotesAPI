@@ -64,10 +64,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 
-app.MapGet("/", () => @"/api is the base url  
-            and /users is the endpoint to retrieve users data!");
-app.MapPut("/", () => @"/api is the base url  
-            and /users is the endpoint to add users data!");
+app.MapGet("/", () => @"/confidentvotesapi is the base path
+/ and /votes are repsectively the endpoints to retrieve users and votes data!");
 // catch-all parameters : / is a delimiter if just used a simple string 
 // we get one string captured
 /*
