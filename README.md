@@ -15,17 +15,17 @@ In this project, the following functionalities have been implemented:
 
 ## How to install and run ConfidentVoteAPI
  1. Install .NET 10 SDK
- 2. clone the repo with : 
-    https
-    `git clone https://github.com/kafando2000/ConfidentVotesAPI.git`
-    ssh
-    `git clone git@github.com:kafando2000/ConfidentVotesAPI.git` 
- 3. run the project :
-    test with swagger UI (it bypass a custom validator for headers ):
-      `dotnet watch run --testwithswaggerui true`
-       head to http://localhost:5284/swagger/index.html to test
-    test with the custom validator:
-      `dotnet watch run --testwithswaggerui false`
+ 2. clone the repo with: <br>
+    for https users: <br>
+    `git clone https://github.com/kafando2000/ConfidentVotesAPI.git` <br>
+    for ssh users: <br>
+    `git clone git@github.com:kafando2000/ConfidentVotesAPI.git` <br>
+ 3. run the project: <br>
+    test with swagger UI (it bypass a custom validator for headers ): <br>
+      `dotnet watch run --testwithswaggerui true` <br>
+       head to http://localhost:5284/swagger/index.html to test <br>
+    test with the custom validator: <br>
+      `dotnet watch run --testwithswaggerui false` <br>
        can use ConfidentVotesAPI.http file (locate at the root of the project folder) to test 
 
 ## Next
