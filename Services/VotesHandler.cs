@@ -10,6 +10,7 @@ namespace ConfidentVotesAPI.Services
     public interface IVotesHandler
     {
         public  Task addVote(Vote vote);
+        public Task<Vote> GetVoteById(int id);
         public  Task RemoveVote(int id);
         public  Task UpdateVote(int id,Vote vote);
         public Task<List<Vote>> GetVotes();
@@ -22,6 +23,15 @@ namespace ConfidentVotesAPI.Services
         }
         private readonly int _ServiceId;
         private List<Vote> Votes = new List<Vote>();
+         public async Task<Vote> GetVoteById(int id)
+        {
+            var vote = Votes.FirstOrDefault(v => v.Id == id);
+            if( vote == null)
+            {
+                throw new BadValueException($"{id}");
+            }
+            return vote;
+        }
         public async Task addVote(Vote vote)
         {   
              if(vote == null)

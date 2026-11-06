@@ -13,11 +13,6 @@ namespace ConfidentVotesAPI.CustomMiddleWare
         }
         public async Task InvokeAsync(HttpContext context)
         {   
-            if (context.Request.Path.StartsWithSegments("/swagger"))
-            {
-                await _next(context);
-                return;
-            }
            if(!context.Request.Headers.ContainsKey("API-SIGNATURE") || 
                 context.Request.Headers["API-SIGNATURE"] != CONFIDENT_API_ID)
             { 

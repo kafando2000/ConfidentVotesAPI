@@ -8,11 +8,13 @@ using Serilog;
 namespace ConfidentVotesAPI.Services
 {
     public interface IUsersHandler
-    {
+    {   
+        public Task<List<Person>> GetUsers();
+        public Task<Person> GetUserById(int id);
         public  Task addUser(Person user);
         public  Task RemoveUser(int id);
         public  Task UpdateUser(int Id, Person user);
-        public Task<List<Person>> GetUsers();
+        
     }
     public class UsersHandler : IUsersHandler
     {   
@@ -23,6 +25,15 @@ namespace ConfidentVotesAPI.Services
         private readonly int _ServiceId;
         // users list
         private List<Person> Users = new List<Person>();
+        public async Task<Person> GetUserById(int id)
+        {
+            var user = Users.FirstOrDefault(u => u.Id == id);
+            if( user == null)
+            {
+                throw new BadValueException($"{id}");
+            }
+            return user;
+        }
         public async Task addUser(Person user)
         {   
             user.Id = Users.Count + 1;

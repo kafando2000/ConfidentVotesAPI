@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.OpenApi;
 using ConfidentVotesAPI.CustomExceptionHandling;
 using Serilog;
 using ConfidentVotesAPI.CustomMiddleWare;
+using ConfidentVotesAPI.utils;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -37,9 +38,11 @@ builder.Host.UseSerilog();
 var app = builder.Build();
 
 app.UseExceptionHandler();
-// to work with swagger ui 
-// Global validator should be comment out
-app.UseMiddleware<GlobalValidator>();
+// custom middleware
+if (!ArgsParser.IsTestWithSwaggerUI(args))
+{
+   app.UseMiddleware<GlobalValidator>(); 
+}
 // simple middleware implementation
 app.Use( async (context, next) =>
 {   

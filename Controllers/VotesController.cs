@@ -32,8 +32,7 @@ namespace ConfidentVotesAPI.Controllers
          [HttpGet("{id:int:min(0)}")]
         public async Task<ActionResult<Vote>> GetbyId(int id)
         {
-            var votes = await _MyVotesHandler.GetVotes();
-            var vote = votes.FirstOrDefault(p => p.Id == id);
+            var vote = await _MyVotesHandler.GetVoteById(id);
             return Ok(vote);
             
         }

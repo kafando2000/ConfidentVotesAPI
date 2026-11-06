@@ -33,9 +33,8 @@ namespace ConfidentUsersAPI.Controllers
          [HttpGet("{id:int:min(0)}")]
         public async Task<ActionResult<Person>> GetbyId(int id)
         {
-            var users = await _MyUsersHandler.GetUsers();
-            var vote = users.FirstOrDefault(p => p.Id == id);
-            return Ok(vote);
+            var user = await _MyUsersHandler.GetUserById(id);
+            return Ok(user);
             
         }
         [HttpPost] 
