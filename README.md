@@ -12,3 +12,23 @@ In this project, the following functionalities have been implemented:
   * API client generation in C# code
 
 ![Swagger UI of the API](assets/swagger.png)
+
+## How to install and run ConfidentVoteAPI
+ 1. Install .NET 10 SDK
+ 2. clone the repo with : 
+    https
+    `git clone https://github.com/kafando2000/ConfidentVotesAPI.git`
+    ssh
+    `git clone git@github.com:kafando2000/ConfidentVotesAPI.git` 
+ 3. run the project :
+    test with swagger UI (it bypass a custom validator for headers ):
+      `dotnet watch run --testwithswaggerui true`
+       head to http://localhost:5284/swagger/index.html to test
+    test with the custom validator:
+      `dotnet watch run --testwithswaggerui false`
+       can use ConfidentVotesAPI.http file (locate at the root of the project folder) to test 
+
+## Next
+ For the moment the project is using session services to store data, 
+ later on connection to real data base will be implemented
+    
