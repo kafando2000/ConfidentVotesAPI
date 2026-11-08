@@ -13,9 +13,10 @@ namespace ConfidentVotesAPI.Services
     {   
         public Task<List<Election>> GetElections();
         public Task<Election> GetElectionById(int id);
-        public  Task addElection(Election election);
+        public  Task addElection(ElectionDto election);
         public  Task RemoveElection(int id);
-        public  Task UpdateElection(int Id, Election election);
+        public  Task UpdateElection(int Id, ElectionDto election);
+        public Task<List<Choice>> GetElectionChoices(int electionId);
         
     }
     public class ElectionsHandler : IElectionsHandler
@@ -39,13 +40,22 @@ namespace ConfidentVotesAPI.Services
             }
             return election;
         }
-        public async Task addElection(Election election)
+        public async Task addElection(ElectionDto election)
         {   
             if(election == null)
             {
                 throw new BadBodyException("Body can't be empty.");
             }
-           _DbContext.Add(election);
+            var dbelection = new Election
+            {   
+                Name = election.Name,
+                PersonID = election.PersonID,
+                Description = election.Description,
+                ElectionID = election.ElectionID,
+                ElectionEnd = election.ElectionEnd,
+                ElectionStart = election.ElectionStart
+            };
+           _DbContext.Add(dbelection);
            await _DbContext.SaveChangesAsync();
         }
 
@@ -61,7 +71,7 @@ namespace ConfidentVotesAPI.Services
             await _DbContext.SaveChangesAsync();
     
         }
-        public async Task UpdateElection(int id, Election election)
+        public async Task UpdateElection(int id, ElectionDto election)
         {
             var trackedElection = await _DbContext.FindAsync<Election>(id);
             if (trackedElection == null)
@@ -77,6 +87,18 @@ namespace ConfidentVotesAPI.Services
         public async Task<List<Election>> GetElections()
         {
             return _DbContext.Elections.ToList();
+        }
+        public async Task<List<Choice>> GetElectionChoices(int electionId)
+        {
+            var choices =  await _DbContext.Elections
+                .Where(e => e.ElectionID == electionId)
+                .Select(e => e.Choices) // Pulls out just the collection
+                .FirstOrDefaultAsync(); 
+            if (choices == null)
+            {
+                return [];
+            }
+            return choices;
         }
 
     }

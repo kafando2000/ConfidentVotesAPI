@@ -10,4 +10,10 @@ namespace ConfidentVotesAPI.Models
         public Election Election {get; set;} = null!;
         public List<Vote> Votes {get;} = new List<Vote>();
     }
+    public class ChoiceDto
+    {   
+        public required int ChoiceID {get; set;}
+        public required string  Title {get; set;}
+        public required int ElectionID  {get; set;}
+    }
 }

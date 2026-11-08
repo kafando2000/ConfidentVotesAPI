@@ -38,11 +38,17 @@ namespace ConfidentVoteAPI.Controllers
             return Ok(Election);
             
         }
+        [HttpGet("{id:int:min(0)}/choices")]
+        public async Task<ActionResult<Election>> GetChoicesByElectionId(int id)
+        {
+            var Election = await _MyElectionsHandler.GetElectionChoices(id);
+            return Ok(Election);
+            
+        }
         [HttpPost] 
          /* ############### POST ############*/
-        public async Task<ActionResult<Election>> Create( [FromBody] Election newElection)
+        public async Task<ActionResult<Election>> Create( [FromBody] ElectionDto newElection)
         {
-            var Elections = await  _MyElectionsHandler.GetElections();
             await _MyElectionsHandler.addElection(newElection);
             return AcceptedAtAction(actionName:nameof(GetbyId), 
                        routeValues: new {id = newElection.ElectionID}, 
@@ -50,7 +56,7 @@ namespace ConfidentVoteAPI.Controllers
         }
         /* ############### PUT ############*/
         [HttpPut("{id:int:min(0)}")] 
-        public async Task<ActionResult<Election>> Update(int id, Election updatedElection)
+        public async Task<ActionResult<Election>> Update(int id, ElectionDto updatedElection)
         {
            
             await _MyElectionsHandler.UpdateElection(id, updatedElection);

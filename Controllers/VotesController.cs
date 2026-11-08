@@ -38,9 +38,8 @@ namespace ConfidentVotesAPI.Controllers
         }
         [HttpPost] 
          /* ############### POST ############*/
-        public async Task<ActionResult<Vote>> Create(Vote newVote)
+        public async Task<ActionResult<Vote>> Create(VoteDto newVote)
         {
-            var votes = await  _MyVotesHandler.GetVotes();
             await _MyVotesHandler.addVote(newVote);
             return AcceptedAtAction(actionName:nameof(GetbyId), 
                        routeValues: new {id = newVote.VoteID}, 
@@ -48,7 +47,7 @@ namespace ConfidentVotesAPI.Controllers
         }
         /* ############### PUT ############*/
         [HttpPut("{id:int:min(0)}")] 
-        public async Task<ActionResult<Vote>> Update(int id, Vote updatedVote)
+        public async Task<ActionResult<Vote>> Update(int id, VoteDto updatedVote)
         {
            
             await _MyVotesHandler.UpdateVote(id, updatedVote);

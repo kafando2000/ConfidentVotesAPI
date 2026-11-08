@@ -36,6 +36,8 @@ builder.Services.AddControllers()
                 });
 builder.Services.AddScoped<IVotesHandler,VotesHandler>();
 builder.Services.AddScoped<IUsersHandler,UsersHandler>();
+builder.Services.AddScoped<IChoicesHandler,ChoicesHandler>();
+builder.Services.AddScoped<IElectionsHandler,ElectionsHandler>();
 // logging configuration
 Log.Logger = new LoggerConfiguration()
         .WriteTo.Console()

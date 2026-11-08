@@ -13,9 +13,9 @@ namespace ConfidentVotesAPI.Services
     {   
         public Task<List<Choice>> GetChoices();
         public Task<Choice> GetChoiceById(int id);
-        public  Task addChoice(Choice Choice);
+        public  Task addChoice(ChoiceDto Choice);
         public  Task RemoveChoice(int id);
-        public  Task UpdateChoice(int Id, Choice Choice);
+        public  Task UpdateChoice(int Id, ChoiceDto Choice);
         
     }
     public class ChoicesHandler : IChoicesHandler
@@ -39,13 +39,20 @@ namespace ConfidentVotesAPI.Services
             }
             return choice;
         }
-        public async Task addChoice(Choice choice)
+        public async Task addChoice(ChoiceDto choice)
         {   
             if(choice == null)
             {
                 throw new BadBodyException("Body can't be empty.");
             }
-           _DbContext.Add(choice);
+            var dbchoice = new Choice
+            {
+                Title = choice.Title,
+                ChoiceID = choice.ChoiceID,
+                ElectionID = choice.ElectionID,
+
+            };
+           _DbContext.Add(dbchoice);
            await _DbContext.SaveChangesAsync();
         }
 
@@ -61,7 +68,7 @@ namespace ConfidentVotesAPI.Services
             await _DbContext.SaveChangesAsync();
     
         }
-        public async Task UpdateChoice(int id, Choice choice)
+        public async Task UpdateChoice(int id, ChoiceDto choice)
         {
             var trackedChoice = await _DbContext.FindAsync<Choice>(id);
             if (trackedChoice == null)
