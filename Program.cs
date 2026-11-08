@@ -2,6 +2,7 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using ConfidentVotesAPI.Services;
+using ConfidentVotesAPI;
 using Swashbuckle.AspNetCore;
 using Microsoft.AspNetCore.OpenApi;
 using ConfidentVotesAPI.CustomExceptionHandling;
@@ -9,12 +10,18 @@ using Serilog;
 using ConfidentVotesAPI.CustomMiddleWare;
 using ConfidentVotesAPI.utils;
 
+
 var builder = WebApplication.CreateBuilder(args);
+// get the connection string define in user-secret
+var connectionString =
+    builder.Configuration.GetConnectionString("PsqlDatabase");
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
+// db context service
+builder.Services.AddDbContext<ConfidentVotesDbContext>();
 // excetion services
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -27,8 +34,8 @@ builder.Services.AddControllers()
                             options.JsonSerializerOptions.PropertyNamingPolicy = 
                             JsonNamingPolicy.SnakeCaseLower;
                 });
-builder.Services.AddSingleton<IVotesHandler,VotesHandler>();
-builder.Services.AddSingleton<IUsersHandler,UsersHandler>();
+builder.Services.AddScoped<IVotesHandler,VotesHandler>();
+builder.Services.AddScoped<IUsersHandler,UsersHandler>();
 // logging configuration
 Log.Logger = new LoggerConfiguration()
         .WriteTo.Console()

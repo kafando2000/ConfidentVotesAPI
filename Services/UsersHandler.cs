@@ -4,6 +4,8 @@ using ConfidentVotesAPI.Models;
 using Microsoft.AspNetCore.Mvc;
 using ConfidentVotesAPI.CustomExceptionHandling;
 using Serilog;
+using Microsoft.EntityFrameworkCore;
+using ConfidentVotesAPI;
 
 namespace ConfidentVotesAPI.Services
 {
@@ -18,16 +20,19 @@ namespace ConfidentVotesAPI.Services
     }
     public class UsersHandler : IUsersHandler
     {   
-        public UsersHandler()
+        public UsersHandler(ConfidentVotesDbContext dbContext)
         {
             _ServiceId = new Random().Next(201, 2000);
+            _DbContext = dbContext;
         }
         private readonly int _ServiceId;
+        private ConfidentVotesDbContext _DbContext;
         // users list
-        private List<Person> Users = new List<Person>();
+        //private List<Person> Users = new List<Person>();
         public async Task<Person> GetUserById(int id)
         {
-            var user = Users.FirstOrDefault(u => u.Id == id);
+            var user = await _DbContext.Users.AsTracking()
+                                             .FirstOrDefaultAsync<Person>(p => p.PersonID == id);
             if( user == null)
             {
                 throw new BadValueException($"{id}");
@@ -36,39 +41,42 @@ namespace ConfidentVotesAPI.Services
         }
         public async Task addUser(Person user)
         {   
-            user.Id = Users.Count + 1;
             if(user == null)
             {
                 throw new BadBodyException("Body can't be empty.");
             }
-            Users.Add(user);
+           _DbContext.Add(user);
+           await _DbContext.SaveChangesAsync();
         }
 
         // error handling hear : specific error handling
         public async Task RemoveUser(int id)
         {  
-            var person = Users.FirstOrDefault(p => p.Id == id);
-            if (person == null)
+            var user = await _DbContext.FindAsync<Person>(id);
+            if (user == null)
             {
                throw new BadPathException($"{id}");
             }
-            Users.Remove(person);
+            _DbContext.Remove(user);
+            await _DbContext.SaveChangesAsync();
     
         }
         public async Task UpdateUser(int id,Person user)
         {
-            var person = Users.FirstOrDefault(p => p.Id == id);
-            if (person == null)
+            var trackedUser = await _DbContext.FindAsync<Person>(id);
+            if (trackedUser == null)
             {
                throw new BadPathException($"{id}");
             }
-            person.FullName = user.FullName;
-            person.Email = user.Email;
-            person.UserName = user.UserName;
+            trackedUser.FirstName = user.FirstName;
+            trackedUser.LastName = user.LastName;
+            trackedUser.Email = user.Email;
+            trackedUser.UserName = user.UserName;
+            await _DbContext.SaveChangesAsync();
         }
         public async Task<List<Person>> GetUsers()
         {
-            return Users;
+            return _DbContext.Users.ToList();
         }
 
     }

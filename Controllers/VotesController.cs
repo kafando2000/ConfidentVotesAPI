@@ -41,11 +41,9 @@ namespace ConfidentVotesAPI.Controllers
         public async Task<ActionResult<Vote>> Create(Vote newVote)
         {
             var votes = await  _MyVotesHandler.GetVotes();
-            var voteId = votes.Count + 1;
-            newVote.Id = voteId;
             await _MyVotesHandler.addVote(newVote);
             return AcceptedAtAction(actionName:nameof(GetbyId), 
-                       routeValues: new {id = newVote.Id}, 
+                       routeValues: new {id = newVote.VoteID}, 
                        value:newVote);
         }
         /* ############### PUT ############*/

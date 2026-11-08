@@ -43,11 +43,9 @@ namespace ConfidentUsersAPI.Controllers
         public async Task<ActionResult<Person>> Create( [FromBody] Person newUser)
         {
             var users = await  _MyUsersHandler.GetUsers();
-            var userId = users.Count + 1;
-            newUser.Id = userId;
             await _MyUsersHandler.addUser(newUser);
             return AcceptedAtAction(actionName:nameof(GetbyId), 
-                       routeValues: new {id = newUser.Id}, 
+                       routeValues: new {id = newUser.PersonID}, 
                        value:newUser);
         }
         /* ############### PUT ############*/
