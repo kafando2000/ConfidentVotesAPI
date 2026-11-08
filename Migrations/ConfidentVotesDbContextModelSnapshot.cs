@@ -64,7 +64,6 @@ namespace ConfidentVotesAPI.Migrations
                         .HasColumnName("description");
 
                     b.Property<DateTime>("ElectionEnd")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("election_end");
 
@@ -88,6 +87,36 @@ namespace ConfidentVotesAPI.Migrations
                         .HasDatabaseName("ix_elections_person_id");
 
                     b.ToTable("elections", (string)null);
+                });
+
+            modelBuilder.Entity("ConfidentVotesAPI.Models.ElectionVoter", b =>
+                {
+                    b.Property<int>("ElectionVoterID")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("election_voter_id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElectionVoterID"));
+
+                    b.Property<int>("ElectionID")
+                        .HasColumnType("integer")
+                        .HasColumnName("election_id");
+
+                    b.Property<int>("PersonID")
+                        .HasColumnType("integer")
+                        .HasColumnName("person_id");
+
+                    b.HasKey("ElectionVoterID")
+                        .HasName("pk_election_voters");
+
+                    b.HasIndex("ElectionID")
+                        .HasDatabaseName("ix_election_voters_election_id");
+
+                    b.HasIndex("PersonID", "ElectionID")
+                        .IsUnique()
+                        .HasDatabaseName("ix_election_voters_person_id_election_id");
+
+                    b.ToTable("election_voters", (string)null);
                 });
 
             modelBuilder.Entity("ConfidentVotesAPI.Models.Person", b =>
@@ -138,13 +167,13 @@ namespace ConfidentVotesAPI.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("choice_id");
 
-                    b.Property<int>("ElectionID")
+                    b.Property<int>("ElectionVoterID")
                         .HasColumnType("integer")
-                        .HasColumnName("election_id");
+                        .HasColumnName("election_voter_id");
 
-                    b.Property<int>("PersonID")
-                        .HasColumnType("integer")
-                        .HasColumnName("person_id");
+                    b.Property<DateTime>("VoteDate")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("vote_date");
 
                     b.HasKey("VoteID")
                         .HasName("pk_votes");
@@ -152,33 +181,11 @@ namespace ConfidentVotesAPI.Migrations
                     b.HasIndex("ChoiceID")
                         .HasDatabaseName("ix_votes_choice_id");
 
-                    b.HasIndex("PersonID")
-                        .HasDatabaseName("ix_votes_person_id");
-
-                    b.HasIndex("ElectionID", "PersonID")
+                    b.HasIndex("ElectionVoterID")
                         .IsUnique()
-                        .HasDatabaseName("ix_votes_election_id_person_id");
+                        .HasDatabaseName("ix_votes_election_voter_id");
 
                     b.ToTable("votes", (string)null);
-                });
-
-            modelBuilder.Entity("ElectionPerson", b =>
-                {
-                    b.Property<int>("AllowedElectionsElectionID")
-                        .HasColumnType("integer")
-                        .HasColumnName("allowed_elections_election_id");
-
-                    b.Property<int>("VotersPersonID")
-                        .HasColumnType("integer")
-                        .HasColumnName("voters_person_id");
-
-                    b.HasKey("AllowedElectionsElectionID", "VotersPersonID")
-                        .HasName("pk_election_person");
-
-                    b.HasIndex("VotersPersonID")
-                        .HasDatabaseName("ix_election_person_voters_person_id");
-
-                    b.ToTable("election_person", (string)null);
                 });
 
             modelBuilder.Entity("ConfidentVotesAPI.Models.Choice", b =>
@@ -205,6 +212,27 @@ namespace ConfidentVotesAPI.Migrations
                     b.Navigation("Initiator");
                 });
 
+            modelBuilder.Entity("ConfidentVotesAPI.Models.ElectionVoter", b =>
+                {
+                    b.HasOne("ConfidentVotesAPI.Models.Election", "Election")
+                        .WithMany("Voters")
+                        .HasForeignKey("ElectionID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_election_voters_elections_election_id");
+
+                    b.HasOne("ConfidentVotesAPI.Models.Person", "Person")
+                        .WithMany("ElectionsVoters")
+                        .HasForeignKey("PersonID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_election_voters_users_person_id");
+
+                    b.Navigation("Election");
+
+                    b.Navigation("Person");
+                });
+
             modelBuilder.Entity("ConfidentVotesAPI.Models.Vote", b =>
                 {
                     b.HasOne("ConfidentVotesAPI.Models.Choice", "Choice")
@@ -214,42 +242,16 @@ namespace ConfidentVotesAPI.Migrations
                         .IsRequired()
                         .HasConstraintName("fk_votes_choices_choice_id");
 
-                    b.HasOne("ConfidentVotesAPI.Models.Election", "Election")
-                        .WithMany("Votes")
-                        .HasForeignKey("ElectionID")
+                    b.HasOne("ConfidentVotesAPI.Models.ElectionVoter", "ElectionVoter")
+                        .WithOne("Vote")
+                        .HasForeignKey("ConfidentVotesAPI.Models.Vote", "ElectionVoterID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_votes_elections_election_id");
-
-                    b.HasOne("ConfidentVotesAPI.Models.Person", "Voter")
-                        .WithMany("Votes")
-                        .HasForeignKey("PersonID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_votes_users_person_id");
+                        .HasConstraintName("fk_votes_election_voters_election_voter_id");
 
                     b.Navigation("Choice");
 
-                    b.Navigation("Election");
-
-                    b.Navigation("Voter");
-                });
-
-            modelBuilder.Entity("ElectionPerson", b =>
-                {
-                    b.HasOne("ConfidentVotesAPI.Models.Election", null)
-                        .WithMany()
-                        .HasForeignKey("AllowedElectionsElectionID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_election_person_elections_allowed_elections_election_id");
-
-                    b.HasOne("ConfidentVotesAPI.Models.Person", null)
-                        .WithMany()
-                        .HasForeignKey("VotersPersonID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_election_person_users_voters_person_id");
+                    b.Navigation("ElectionVoter");
                 });
 
             modelBuilder.Entity("ConfidentVotesAPI.Models.Choice", b =>
@@ -261,14 +263,19 @@ namespace ConfidentVotesAPI.Migrations
                 {
                     b.Navigation("Choices");
 
-                    b.Navigation("Votes");
+                    b.Navigation("Voters");
+                });
+
+            modelBuilder.Entity("ConfidentVotesAPI.Models.ElectionVoter", b =>
+                {
+                    b.Navigation("Vote");
                 });
 
             modelBuilder.Entity("ConfidentVotesAPI.Models.Person", b =>
                 {
-                    b.Navigation("InitiatedElections");
+                    b.Navigation("ElectionsVoters");
 
-                    b.Navigation("Votes");
+                    b.Navigation("InitiatedElections");
                 });
 #pragma warning restore 612, 618
         }

@@ -5,22 +5,20 @@ namespace ConfidentVotesAPI.Models
     {
         // foreign keys of person and election
         // they will be unique combination
-        public required int  VoteID{get; set;}
-        public required int ElectionID {get; set;}
+        public required int VoteID {get; set;}
+        public required int ElectionVoterID {get; set;}
         public required int ChoiceID {get; set;}
-        public required int PersonID {get; set;}
-        public Person Voter {get; set;} = null!;
+        public ElectionVoter ElectionVoter {get; set;} = null!;
         public Choice Choice {get; set;} = null!;
-        public Election Election {get; set;} = null!;
-        public readonly DateTime VoteDate = DateTime.Now;
+        public  DateTime VoteDate{get; set;} = DateTime.Now;
     }
      public class VoteDto
     {
         // foreign keys of person and election
         // they will be unique combination
-        public required int  VoteID{get; set;}
-        public required int ElectionID {get; set;}
+        public required int VoteID {get; set;}
+        public required int ElectionVoterID {get; set;}
         public required int ChoiceID {get; set;}
-        public required int PersonID {get; set;}
+        public  DateTime VoteDate{get;} = DateTime.Now;
     }
 }

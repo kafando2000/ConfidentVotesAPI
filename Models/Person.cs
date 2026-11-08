@@ -12,8 +12,7 @@ namespace ConfidentVotesAPI.Models
         public required string Email {get; set;}
         public required string UserName {get; set;}
         public  readonly DateTime SignupDate = DateTime.Now;
-        public List<Election> AllowedElections { get;} = new List<Election>();
         public List<Election> InitiatedElections { get;} = new List<Election>();
-        public List<Vote> Votes { get;} = new List<Vote>();
+        public List<ElectionVoter> ElectionsVoters { get;} = new List<ElectionVoter>();
     }
 }

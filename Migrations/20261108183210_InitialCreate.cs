@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ConfidentVotesAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class inital : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -72,24 +72,26 @@ namespace ConfidentVotesAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "election_person",
+                name: "election_voters",
                 columns: table => new
                 {
-                    allowed_elections_election_id = table.Column<int>(type: "integer", nullable: false),
-                    voters_person_id = table.Column<int>(type: "integer", nullable: false)
+                    election_voter_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    election_id = table.Column<int>(type: "integer", nullable: false),
+                    person_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_election_person", x => new { x.allowed_elections_election_id, x.voters_person_id });
+                    table.PrimaryKey("pk_election_voters", x => x.election_voter_id);
                     table.ForeignKey(
-                        name: "fk_election_person_elections_allowed_elections_election_id",
-                        column: x => x.allowed_elections_election_id,
+                        name: "fk_election_voters_elections_election_id",
+                        column: x => x.election_id,
                         principalTable: "elections",
                         principalColumn: "election_id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_election_person_users_voters_person_id",
-                        column: x => x.voters_person_id,
+                        name: "fk_election_voters_users_person_id",
+                        column: x => x.person_id,
                         principalTable: "users",
                         principalColumn: "person_id",
                         onDelete: ReferentialAction.Cascade);
@@ -101,9 +103,9 @@ namespace ConfidentVotesAPI.Migrations
                 {
                     vote_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    election_id = table.Column<int>(type: "integer", nullable: false),
+                    election_voter_id = table.Column<int>(type: "integer", nullable: false),
                     choice_id = table.Column<int>(type: "integer", nullable: false),
-                    person_id = table.Column<int>(type: "integer", nullable: false)
+                    vote_date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -115,16 +117,10 @@ namespace ConfidentVotesAPI.Migrations
                         principalColumn: "choice_id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_votes_elections_election_id",
-                        column: x => x.election_id,
-                        principalTable: "elections",
-                        principalColumn: "election_id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_votes_users_person_id",
-                        column: x => x.person_id,
-                        principalTable: "users",
-                        principalColumn: "person_id",
+                        name: "fk_votes_election_voters_election_voter_id",
+                        column: x => x.election_voter_id,
+                        principalTable: "election_voters",
+                        principalColumn: "election_voter_id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -134,9 +130,15 @@ namespace ConfidentVotesAPI.Migrations
                 column: "election_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_election_person_voters_person_id",
-                table: "election_person",
-                column: "voters_person_id");
+                name: "ix_election_voters_election_id",
+                table: "election_voters",
+                column: "election_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_election_voters_person_id_election_id",
+                table: "election_voters",
+                columns: new[] { "person_id", "election_id" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "ix_elections_person_id",
@@ -149,28 +151,23 @@ namespace ConfidentVotesAPI.Migrations
                 column: "choice_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_votes_election_id_person_id",
+                name: "ix_votes_election_voter_id",
                 table: "votes",
-                columns: new[] { "election_id", "person_id" },
+                column: "election_voter_id",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "ix_votes_person_id",
-                table: "votes",
-                column: "person_id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "election_person");
-
-            migrationBuilder.DropTable(
                 name: "votes");
 
             migrationBuilder.DropTable(
                 name: "choices");
+
+            migrationBuilder.DropTable(
+                name: "election_voters");
 
             migrationBuilder.DropTable(
                 name: "elections");

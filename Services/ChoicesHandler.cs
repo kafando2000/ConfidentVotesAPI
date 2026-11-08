@@ -49,7 +49,7 @@ namespace ConfidentVotesAPI.Services
             {
                 Title = choice.Title,
                 ChoiceID = choice.ChoiceID,
-                ElectionID = choice.ElectionID,
+                ElectionID = choice.ElectionID
 
             };
            _DbContext.Add(dbchoice);

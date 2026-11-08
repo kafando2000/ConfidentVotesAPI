@@ -5,6 +5,7 @@ using ConfidentVotesAPI.Services;
 using ConfidentVotesAPI;
 using Swashbuckle.AspNetCore;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.EntityFrameworkCore;
 using ConfidentVotesAPI.CustomExceptionHandling;
 using Serilog;
 using ConfidentVotesAPI.CustomMiddleWare;

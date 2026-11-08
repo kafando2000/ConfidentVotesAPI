@@ -32,7 +32,7 @@ namespace ConfidentVotesAPI.Services
         public async Task<Vote> GetVoteById(int id)
         {
             var vote = await _DbContext.Votes.AsTracking()
-                                             .FirstOrDefaultAsync<Vote>(p => p.VoteID == id);
+                                             .FirstOrDefaultAsync(p => p.VoteID == id);
             if( vote == null)
             {
                 throw new BadValueException($"{id}");
@@ -48,9 +48,8 @@ namespace ConfidentVotesAPI.Services
             var dbvote = new Vote
             {
                 VoteID = newVote.VoteID,
-                ElectionID = newVote.ElectionID,
-                ChoiceID = newVote.ChoiceID,
-                PersonID = newVote.PersonID,
+                ElectionVoterID = newVote.ElectionVoterID,
+                ChoiceID = newVote.ChoiceID
             };
            _DbContext.Add(dbvote);
            await _DbContext.SaveChangesAsync();
@@ -76,6 +75,7 @@ namespace ConfidentVotesAPI.Services
                throw new BadPathException($"{id}");
             }
             trackedVote.ChoiceID = Vote.ChoiceID;
+            trackedVote.VoteDate = Vote.VoteDate;
             await _DbContext.SaveChangesAsync();
         }
         public async Task<List<Vote>> GetVotes()
