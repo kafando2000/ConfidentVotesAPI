@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text.Json;
 using ConfidentVotesAPI.Services;
 
-namespace ConfidentVoteAPI.Controllers
+namespace ConfidentVotesAPI.Controllers
 {
     [ApiController]
 
@@ -26,13 +26,13 @@ namespace ConfidentVoteAPI.Controllers
         }
         /* ############### GET ############*/
         [HttpGet]
-        public async Task<ActionResult<List<Choice>>> GetAll()
+        public async Task<ActionResult<List<ChoiceResponseDto>>> GetAll()
         {
             var Choices = await _MyChoicesHandler.GetChoices();
             return Ok(Choices);
         }
          [HttpGet("{id:int:min(0)}")]
-        public async Task<ActionResult<Choice>> GetbyId(int id)
+        public async Task<ActionResult<ChoiceResponseDto>> GetbyId(int id)
         {
             var choice = await _MyChoicesHandler.GetChoiceById(id);
             return Ok(choice);
@@ -40,7 +40,7 @@ namespace ConfidentVoteAPI.Controllers
         }
         [HttpPost] 
          /* ############### POST ############*/
-        public async Task<ActionResult<Choice>> Create( [FromBody] ChoiceDto newChoice)
+        public async Task<ActionResult<ChoiceResponseDto>> Create( [FromBody] ChoiceRequestDto newChoice)
         {
             await _MyChoicesHandler.addChoice(newChoice);
             return AcceptedAtAction(actionName:nameof(GetbyId), 
@@ -49,16 +49,18 @@ namespace ConfidentVoteAPI.Controllers
         }
         /* ############### PUT ############*/
         [HttpPut("{id:int:min(0)}")] 
-        public async Task<ActionResult<Choice>> Update(int id, ChoiceDto updatedChoice)
+        public async Task<ActionResult<ChoiceResponseDto>> Update(int id, ChoiceRequestDto updatedChoice)
         {
-           
-            await _MyChoicesHandler.UpdateChoice(id, updatedChoice);
-            return Ok(updatedChoice);
+           var newchoice = updatedChoice;
+            await _MyChoicesHandler.UpdateChoice(id, newchoice);
+            return AcceptedAtAction(actionName:nameof(GetbyId), 
+                       routeValues: new {id = updatedChoice.ChoiceID}, 
+                       value:updatedChoice);
         }
 
         /* ############### DELETE ############*/
         [HttpDelete("{id:int:min(1)}")] 
-        public async Task<ActionResult<Choice>> Delete(int id)
+        public async Task<ActionResult<ChoiceResponseDto>> Delete(int id)
         {
             await _MyChoicesHandler.RemoveChoice(id);
             return NoContent();

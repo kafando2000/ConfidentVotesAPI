@@ -11,11 +11,11 @@ namespace ConfidentVotesAPI.Services
 {
     public interface IVotesHandler
     {   
-        public Task<List<Vote>> GetVotes();
-        public Task<Vote> GetVoteById(int id);
-        public  Task addVote(VoteDto Vote);
+        public Task<List<VoteResponseDto>> GetVotes();
+        public Task<VoteResponseDto> GetVoteById(int id);
+        public  Task addVote(VoteRequestDto Vote);
         public  Task RemoveVote(int id);
-        public  Task UpdateVote(int Id, VoteDto Vote);
+        public  Task UpdateVote(int Id, VoteRequestDto Vote);
         
     }
     public class VotesHandler : IVotesHandler
@@ -29,28 +29,27 @@ namespace ConfidentVotesAPI.Services
         private ConfidentVotesDbContext _DbContext;
         // Votes list
         //private List<Vote> Votes = new List<Vote>();
-        public async Task<Vote> GetVoteById(int id)
+        public async Task<VoteResponseDto> GetVoteById(int id)
         {
-            var vote = await _DbContext.Votes.AsTracking()
+            var vote = await _DbContext.Votes.AsNoTracking()
+                                            .Select(vote => vote.ToResponse())
                                              .FirstOrDefaultAsync(p => p.VoteID == id);
+            
+            
             if( vote == null)
             {
                 throw new BadValueException($"{id}");
             }
             return vote;
         }
-        public async Task addVote(VoteDto newVote)
+        public async Task addVote(VoteRequestDto newVote)
         {   
+            Console.WriteLine("entered addvote");
             if(newVote == null)
             {
                 throw new BadBodyException("Body can't be empty.");
             }
-            var dbvote = new Vote
-            {
-                VoteID = newVote.VoteID,
-                ElectionVoterID = newVote.ElectionVoterID,
-                ChoiceID = newVote.ChoiceID
-            };
+            var dbvote = newVote.ToVote();
            _DbContext.Add(dbvote);
            await _DbContext.SaveChangesAsync();
         }
@@ -67,7 +66,7 @@ namespace ConfidentVotesAPI.Services
             await _DbContext.SaveChangesAsync();
     
         }
-        public async Task UpdateVote(int id,VoteDto Vote)
+        public async Task UpdateVote(int id,VoteRequestDto Vote)
         {
             var trackedVote = await _DbContext.FindAsync<Vote>(id);
             if (trackedVote == null)
@@ -78,9 +77,10 @@ namespace ConfidentVotesAPI.Services
             trackedVote.VoteDate = Vote.VoteDate;
             await _DbContext.SaveChangesAsync();
         }
-        public async Task<List<Vote>> GetVotes()
+        public async Task<List<VoteResponseDto>> GetVotes()
         {
-            return _DbContext.Votes.ToList();
+            return await _DbContext.Votes.Select(vote => vote.ToResponse())
+            .ToListAsync();
         }
 
     }

@@ -6,16 +6,17 @@ using ConfidentVotesAPI.CustomExceptionHandling;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
 using ConfidentVotesAPI;
+using Microsoft.VisualBasic;
 
 namespace ConfidentVotesAPI.Services
 {
     public interface IChoicesHandler
     {   
-        public Task<List<Choice>> GetChoices();
-        public Task<Choice> GetChoiceById(int id);
-        public  Task addChoice(ChoiceDto Choice);
+        public Task<List<ChoiceResponseDto>> GetChoices();
+        public Task<ChoiceResponseDto> GetChoiceById(int id);
+        public  Task addChoice(ChoiceRequestDto Choice);
         public  Task RemoveChoice(int id);
-        public  Task UpdateChoice(int Id, ChoiceDto Choice);
+        public  Task UpdateChoice(int Id, ChoiceRequestDto Choice);
         
     }
     public class ChoicesHandler : IChoicesHandler
@@ -29,29 +30,25 @@ namespace ConfidentVotesAPI.Services
         private ConfidentVotesDbContext _DbContext;
         // Choices list
         //private List<Choice> Choices = new List<Choice>();
-        public async Task<Choice> GetChoiceById(int id)
+        public async Task<ChoiceResponseDto> GetChoiceById(int id)
         {
-            var choice = await _DbContext.Choices.AsTracking()
-                                             .FirstOrDefaultAsync<Choice>(p => p.ChoiceID == id);
+            var choice = await _DbContext.Choices.Include(e => e.Votes)
+            .FirstOrDefaultAsync(e => e.ChoiceID == id);
+    
             if( choice == null)
             {
                 throw new BadValueException($"{id}");
             }
-            return choice;
+            var choiceDto = choice.ToResponse();
+            return choiceDto;
         }
-        public async Task addChoice(ChoiceDto choice)
+        public async Task addChoice(ChoiceRequestDto choice)
         {   
             if(choice == null)
             {
                 throw new BadBodyException("Body can't be empty.");
             }
-            var dbchoice = new Choice
-            {
-                Title = choice.Title,
-                ChoiceID = choice.ChoiceID,
-                ElectionID = choice.ElectionID
-
-            };
+            var dbchoice = choice.ToChoice();
            _DbContext.Add(dbchoice);
            await _DbContext.SaveChangesAsync();
         }
@@ -68,7 +65,7 @@ namespace ConfidentVotesAPI.Services
             await _DbContext.SaveChangesAsync();
     
         }
-        public async Task UpdateChoice(int id, ChoiceDto choice)
+        public async Task UpdateChoice(int id, ChoiceRequestDto choice)
         {
             var trackedChoice = await _DbContext.FindAsync<Choice>(id);
             if (trackedChoice == null)
@@ -79,10 +76,10 @@ namespace ConfidentVotesAPI.Services
            
             await _DbContext.SaveChangesAsync();
         }
-        public async Task<List<Choice>> GetChoices()
+        public async Task<List<ChoiceResponseDto>> GetChoices()
         {
-            return _DbContext.Choices.ToList();
-        }
+            return _DbContext.Choices.Select( choice => choice.ToResponse()).ToList();
 
+       }
     }
 }

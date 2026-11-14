@@ -24,13 +24,13 @@ namespace ConfidentVotesAPI.Controllers
         }
         /* ############### GET ############*/
         [HttpGet]
-        public async Task<ActionResult<List<Vote>>> GetAll()
+        public async Task<ActionResult<List<VoteResponseDto>>> GetAll()
         {
             var votes = await _MyVotesHandler.GetVotes();
             return Ok(votes);
         }
          [HttpGet("{id:int:min(0)}")]
-        public async Task<ActionResult<Vote>> GetbyId(int id)
+        public async Task<ActionResult<VoteResponseDto>> GetbyId(int id)
         {
             var vote = await _MyVotesHandler.GetVoteById(id);
             return Ok(vote);
@@ -38,7 +38,7 @@ namespace ConfidentVotesAPI.Controllers
         }
         [HttpPost] 
          /* ############### POST ############*/
-        public async Task<ActionResult<Vote>> Create(VoteDto newVote)
+        public async Task<ActionResult<VoteResponseDto>> Create(VoteRequestDto newVote)
         {
             await _MyVotesHandler.addVote(newVote);
             return AcceptedAtAction(actionName:nameof(GetbyId), 
@@ -47,16 +47,18 @@ namespace ConfidentVotesAPI.Controllers
         }
         /* ############### PUT ############*/
         [HttpPut("{id:int:min(0)}")] 
-        public async Task<ActionResult<Vote>> Update(int id, VoteDto updatedVote)
+        public async Task<ActionResult<VoteResponseDto>> Update(int id, VoteRequestDto updatedVote)
         {
            
             await _MyVotesHandler.UpdateVote(id, updatedVote);
-            return Ok(updatedVote);
+            return AcceptedAtAction(actionName:nameof(GetbyId), 
+                       routeValues: new {id = updatedVote.VoteID}, 
+                       value:updatedVote);
         }
 
         /* ############### DELETE ############*/
         [HttpDelete("{id:int:min(1)}")] 
-        public async Task<ActionResult<Vote>> Delete(int id)
+        public async Task<ActionResult<VoteResponseDto>> Delete(int id)
         {
             await _MyVotesHandler.RemoveVote(id);
             return NoContent();

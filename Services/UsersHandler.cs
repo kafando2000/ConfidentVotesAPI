@@ -11,11 +11,11 @@ namespace ConfidentVotesAPI.Services
 {
     public interface IUsersHandler
     {   
-        public Task<List<Person>> GetUsers();
-        public Task<Person> GetUserById(int id);
-        public  Task addUser(Person user);
+        public Task<List<PersonResponseDto>> GetUsers();
+        public Task<PersonResponseDto> GetUserById(int id);
+        public  Task addUser(PersonRequestDto user);
         public  Task RemoveUser(int id);
-        public  Task UpdateUser(int Id, Person user);
+        public  Task UpdateUser(int Id, PersonRequestDto user);
         
     }
     public class UsersHandler : IUsersHandler
@@ -29,23 +29,25 @@ namespace ConfidentVotesAPI.Services
         private ConfidentVotesDbContext _DbContext;
         // users list
         //private List<Person> Users = new List<Person>();
-        public async Task<Person> GetUserById(int id)
+        public async Task<PersonResponseDto> GetUserById(int id)
         {
-            var user = await _DbContext.Users.AsTracking()
-                                             .FirstOrDefaultAsync<Person>(p => p.PersonID == id);
-            if( user == null)
+            var user = await _DbContext.Users
+            .Include(u => u.ElectionsVoters)
+            .Include(u => u.InitiatedElections)
+            .FirstOrDefaultAsync();
+            if(user == null)
             {
-                throw new BadValueException($"{id}");
+                throw new BadBodyException("Body can't be empty.");
             }
-            return user;
+            return user.ToResponse();
         }
-        public async Task addUser(Person user)
+        public async Task addUser(PersonRequestDto user)
         {   
             if(user == null)
             {
                 throw new BadBodyException("Body can't be empty.");
             }
-           _DbContext.Add(user);
+           _DbContext.Add(user.ToPerson());
            await _DbContext.SaveChangesAsync();
         }
 
@@ -61,7 +63,7 @@ namespace ConfidentVotesAPI.Services
             await _DbContext.SaveChangesAsync();
     
         }
-        public async Task UpdateUser(int id,Person user)
+        public async Task UpdateUser(int id,PersonRequestDto user)
         {
             var trackedUser = await _DbContext.FindAsync<Person>(id);
             if (trackedUser == null)
@@ -72,11 +74,13 @@ namespace ConfidentVotesAPI.Services
             trackedUser.LastName = user.LastName;
             trackedUser.Email = user.Email;
             trackedUser.UserName = user.UserName;
+            trackedUser.Password = user.Password;
             await _DbContext.SaveChangesAsync();
         }
-        public async Task<List<Person>> GetUsers()
+        public async Task<List<PersonResponseDto>> GetUsers()
         {
-            return _DbContext.Users.ToList();
+            return _DbContext.Users
+                                   .Select(e => e.ToResponse()).ToList();
         }
 
     }

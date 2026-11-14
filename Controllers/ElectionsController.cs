@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text.Json;
 using ConfidentVotesAPI.Services;
 
-namespace ConfidentVoteAPI.Controllers
+namespace ConfidentVotesAPI.Controllers
 {
     [ApiController]
 
@@ -26,28 +26,28 @@ namespace ConfidentVoteAPI.Controllers
         }
         /* ############### GET ############*/
         [HttpGet]
-        public async Task<ActionResult<List<Election>>> GetAll()
+        public async Task<ActionResult<List<ElectionResponseDto>>> GetAll()
         {
             var Elections = await _MyElectionsHandler.GetElections();
             return Ok(Elections);
         }
          [HttpGet("{id:int:min(0)}")]
-        public async Task<ActionResult<Election>> GetbyId(int id)
+        public async Task<ActionResult<ElectionResponseDto>> GetbyId(int id)
         {
             var Election = await _MyElectionsHandler.GetElectionById(id);
             return Ok(Election);
             
         }
         [HttpGet("{id:int:min(0)}/choices")]
-        public async Task<ActionResult<Election>> GetChoicesByElectionId(int id)
+        public async Task<ActionResult<ChoiceResponseDto>> GetChoicesByElectionId(int id)
         {
-            var Election = await _MyElectionsHandler.GetElectionChoices(id);
-            return Ok(Election);
+            var ElectionChoices = await _MyElectionsHandler.GetElectionChoices(id);
+            return Ok(ElectionChoices);
             
         }
         [HttpPost] 
          /* ############### POST ############*/
-        public async Task<ActionResult<Election>> Create( [FromBody] ElectionDto newElection)
+        public async Task<ActionResult<ElectionResponseDto>> Create( [FromBody] ElectionRequestDto newElection)
         {
             await _MyElectionsHandler.addElection(newElection);
             return AcceptedAtAction(actionName:nameof(GetbyId), 
@@ -56,16 +56,18 @@ namespace ConfidentVoteAPI.Controllers
         }
         /* ############### PUT ############*/
         [HttpPut("{id:int:min(0)}")] 
-        public async Task<ActionResult<Election>> Update(int id, ElectionDto updatedElection)
+        public async Task<ActionResult<ElectionResponseDto>> Update(int id, ElectionRequestDto updatedElection)
         {
            
             await _MyElectionsHandler.UpdateElection(id, updatedElection);
-            return Ok(updatedElection);
+            return AcceptedAtAction(actionName:nameof(GetbyId), 
+                       routeValues: new {id = updatedElection.ElectionID}, 
+                       value:updatedElection);
         }
 
         /* ############### DELETE ############*/
         [HttpDelete("{id:int:min(1)}")] 
-        public async Task<ActionResult<Election>> Delete(int id)
+        public async Task<ActionResult<ElectionResponseDto>> Delete(int id)
         {
             await _MyElectionsHandler.RemoveElection(id);
             return NoContent();
