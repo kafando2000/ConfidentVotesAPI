@@ -1,4 +1,4 @@
-namespace ConfidentVotesAPI.utils
+namespace ConfidentVotesAPI.Utils
 {
     public sealed class ArgsParser
     {
@@ -23,6 +23,28 @@ namespace ConfidentVotesAPI.utils
             }
             Console.WriteLine($"Test With Swagger UI : {testwithswaggerui}");
             return testwithswaggerui;
+        }
+        public static bool IsGenerateapiclient (string[] args)
+        {   
+            bool Generateapiclient = false;
+            for (int i = 0; i < args.Length; i++)
+            {
+                switch (args[i])
+                {
+                    case "--generateapiclient":
+                        if (i + 1 < args.Length && bool.TryParse(args[i + 1], out bool generateapiclient))
+                        {
+                            Generateapiclient = generateapiclient;
+                            i++; 
+                        }
+                        break;
+                    default:
+                        break;
+                    
+                }
+            }
+            Console.WriteLine($"Test With Swagger UI : {Generateapiclient}");
+            return Generateapiclient;
         }
     }
 }

@@ -2,19 +2,37 @@ using System.Reflection.Metadata.Ecma335;
 using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 using ConfidentVotesAPI.Services;
+using ConfidentVotesAPI;
+using ConfidentVotesAPI.CustomApiGenerator;
 using Swashbuckle.AspNetCore;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.EntityFrameworkCore;
 using ConfidentVotesAPI.CustomExceptionHandling;
 using Serilog;
 using ConfidentVotesAPI.CustomMiddleWare;
-using ConfidentVotesAPI.utils;
+using ConfidentVotesAPI.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
+// get the connection string define in user-secret
+var connectionString =
+    builder.Configuration.GetConnectionString("PsqlDatabase");
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+});
+
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
+// db context service
+builder.Services.AddDbContext<ConfidentVotesDbContext>();
 // excetion services
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -27,8 +45,12 @@ builder.Services.AddControllers()
                             options.JsonSerializerOptions.PropertyNamingPolicy = 
                             JsonNamingPolicy.SnakeCaseLower;
                 });
-builder.Services.AddSingleton<IVotesHandler,VotesHandler>();
-builder.Services.AddSingleton<IUsersHandler,UsersHandler>();
+builder.Services.AddScoped<IVotesHandler,VotesHandler>();
+builder.Services.AddScoped<IUsersHandler,UsersHandler>();
+builder.Services.AddScoped<IChoicesHandler,ChoicesHandler>();
+builder.Services.AddScoped<IElectionsHandler,ElectionsHandler>();
+builder.Services.AddScoped<IElectionVotersHandler,ElectionVotersHandler>();
+
 // logging configuration
 Log.Logger = new LoggerConfiguration()
         .WriteTo.Console()
@@ -36,7 +58,6 @@ Log.Logger = new LoggerConfiguration()
         .CreateLogger();
 builder.Host.UseSerilog();
 var app = builder.Build();
-
 
 app.UseExceptionHandler();
 // custom middleware
@@ -74,16 +95,16 @@ app.MapGet("/api/{*filePath}", (string filePath) => filePath);
 // query parameters it get thru query
 app.MapGet("/api/search", (string? query, int page = 2) => @$"{query} and {page}");
 */
+await app.StartAsync();
+// generate API client
+if (ArgsParser.IsGenerateapiclient(args))
+{
+    await  new ClientGenerator("http://localhost",5284).GenerateClient();
+}
+ 
 
-
-// generated API client usage
-// var httpClient = new HttpClient();
-// var client = new CustomApiClient("http://localhost:5000", httpClient);
-
-// var user = await client.UserAsync(1);
-// Console.WriteLine($"Fetched User: {user}");
-
-app.Run();
+await app.WaitForShutdownAsync();
+//app.Run();
 
 
 

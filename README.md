@@ -31,4 +31,3 @@ In this project, the following functionalities have been implemented:
 ## Next
  For the moment the project is using session services to store data, 
  later on connection to real data base will be implemented
-    

@@ -26,13 +26,13 @@ namespace ConfidentUsersAPI.Controllers
         }
         /* ############### GET ############*/
         [HttpGet]
-        public async Task<ActionResult<List<Person>>> GetAll()
+        public async Task<ActionResult<List<PersonResponseDto>>> GetAll()
         {
             var users = await _MyUsersHandler.GetUsers();
             return Ok(users);
         }
          [HttpGet("{id:int:min(0)}")]
-        public async Task<ActionResult<Person>> GetbyId(int id)
+        public async Task<ActionResult<PersonResponseDto>> GetbyId(int id)
         {
             var user = await _MyUsersHandler.GetUserById(id);
             return Ok(user);
@@ -40,28 +40,27 @@ namespace ConfidentUsersAPI.Controllers
         }
         [HttpPost] 
          /* ############### POST ############*/
-        public async Task<ActionResult<Person>> Create( [FromBody] Person newUser)
+        public async Task<ActionResult<PersonResponseDto>> Create( [FromBody] PersonRequestDto newUser)
         {
-            var users = await  _MyUsersHandler.GetUsers();
-            var userId = users.Count + 1;
-            newUser.Id = userId;
             await _MyUsersHandler.addUser(newUser);
             return AcceptedAtAction(actionName:nameof(GetbyId), 
-                       routeValues: new {id = newUser.Id}, 
+                       routeValues: new {id = newUser.PersonID}, 
                        value:newUser);
         }
         /* ############### PUT ############*/
         [HttpPut("{id:int:min(0)}")] 
-        public async Task<ActionResult<Person>> Update(int id, Person updatedVote)
+        public async Task<ActionResult<PersonResponseDto>> Update(int id, PersonRequestDto updatedPerson)
         {
            
-            await _MyUsersHandler.UpdateUser(id, updatedVote);
-            return Ok(updatedVote);
+            await _MyUsersHandler.UpdateUser(id, updatedPerson);
+            return AcceptedAtAction(actionName:nameof(GetbyId), 
+                       routeValues: new {id = updatedPerson.PersonID}, 
+                       value:updatedPerson);
         }
 
         /* ############### DELETE ############*/
         [HttpDelete("{id:int:min(1)}")] 
-        public async Task<ActionResult<Person>> Delete(int id)
+        public async Task<ActionResult<PersonResponseDto>> Delete(int id)
         {
             await _MyUsersHandler.RemoveUser(id);
             return NoContent();
