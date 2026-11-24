@@ -37,6 +37,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 var app = builder.Build();
 
+
 app.UseExceptionHandler();
 // custom middleware
 if (!ArgsParser.IsTestWithSwaggerUI(args))
