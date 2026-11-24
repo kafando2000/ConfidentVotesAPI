@@ -1,4 +1,4 @@
-namespace ConfidentVotesAPI.utils
+namespace ConfidentVotesAPI.Utils
 {
     public sealed class ArgsParser
     {

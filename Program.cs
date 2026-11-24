@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using ConfidentVotesAPI.CustomExceptionHandling;
 using Serilog;
 using ConfidentVotesAPI.CustomMiddleWare;
-using ConfidentVotesAPI.utils;
+using ConfidentVotesAPI.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 // get the connection string define in user-secret
@@ -18,6 +18,16 @@ var connectionString =
     builder.Configuration.GetConnectionString("PsqlDatabase");
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.User.RequireUniqueEmail = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+});
+
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();

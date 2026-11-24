@@ -1,13 +1,15 @@
 using ConfidentVotesAPI.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 namespace ConfidentVotesAPI{
-   public  class ConfidentVotesDbContext : DbContext
+    public class AppRole : IdentityRole<Guid> { }
+   public  class ConfidentVotesDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     {   
         public ConfidentVotesDbContext(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("PsqlDatabase");
         }
-        public  DbSet<Person> Users {get; set;}
         public  DbSet<Vote> Votes {get; set;}
         public  DbSet<Election> Elections {get; set;}
         public  DbSet<Choice> Choices {get; set;}
@@ -34,7 +36,7 @@ namespace ConfidentVotesAPI{
             }
             );
             // person <--> election  and person <--> vote  relationships
-            modelBuilder.Entity<Person>( entity =>
+            modelBuilder.Entity<AppUser>( entity =>
             {
                 entity
                     .HasMany(e => e.ElectionsVoters)
@@ -42,9 +44,9 @@ namespace ConfidentVotesAPI{
                 entity
                     .HasMany(e => e.InitiatedElections)
                     .WithOne(e => e.Initiator);
-                entity
-                    .Property(e => e.PersonID)
-                    .ValueGeneratedOnAdd();
+                entity // Or your custom ApplicationUser class
+                    .HasIndex(u => u.NormalizedEmail)
+                    .IsUnique();
             }
             );
             // choice <--> vote and choice <--> election relationships
