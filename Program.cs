@@ -31,6 +31,9 @@ builder.Services.Configure<IdentityOptions>(options =>
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
+// identity service
+// authentitication services
+// authorization services
 // db context service
 builder.Services.AddDbContext<ConfidentVotesDbContext>();
 // excetion services

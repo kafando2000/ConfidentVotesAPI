@@ -12,7 +12,7 @@ namespace ConfidentVotesAPI{
         }
         public  DbSet<Vote> Votes {get; set;}
         public  DbSet<Election> Elections {get; set;}
-        public  DbSet<Choice> Choices {get; set;}
+        public  DbSet<ElectionOption> ElectionOptions {get; set;}
         public  DbSet<ElectionVoter> ElectionVoters {get; set;}
         private readonly string? _connectionString;
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

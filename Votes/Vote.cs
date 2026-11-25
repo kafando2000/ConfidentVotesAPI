@@ -5,30 +5,28 @@ namespace ConfidentVotesAPI.Models
     {
         // foreign keys of person and election
         // they will be unique combination
-        public required int VoteID {get; set;}
-        public required int ElectionVoterID {get; set;}
-        public required int ChoiceID {get; set;}
-        public ElectionVoter ElectionVoter {get; set;} = null!;
-        public Choice Choice {get; set;} = null!;
-        public  DateTime VoteDate{get; set;} = DateTime.Now;
+        public  Guid Id {get; set;} = Guid.CreateVersion7();
+        public  Guid? ElectionVoterID {get; set;}
+        public  Guid? ElectionOptionID {get; set;}
+        public ElectionVoter ElectionVoter {get;} = null!;
+        public ElectionOption ElectionOption {get;} = null!;
+        public  DateTimeOffset VotedOn{get; set;} = DateTimeOffset.UtcNow;
         public VoteResponseDto ToResponse()
         {
             return new VoteResponseDto
             {
-                VoteID = VoteID,
+                Id = Id,
                 ElectionVoterID = ElectionVoterID,
-                ChoiceID = ChoiceID,
-                VoteDate = VoteDate
+                ElectionOptionID = ElectionOptionID,
+                VotedOn = VotedOn
             };
         }
         public VoteRequestDto ToRequest()
         {
             return new VoteRequestDto
             {
-                VoteID = VoteID,
                 ElectionVoterID = ElectionVoterID,
-                ChoiceID = ChoiceID,
-                VoteDate = VoteDate
+                ElectionOptionID = ElectionOptionID,
             };
         }
     }
@@ -36,18 +34,14 @@ namespace ConfidentVotesAPI.Models
     {
         // foreign keys of person and election
         // they will be unique combination
-        public required int VoteID {get; set;}
-        public required int ElectionVoterID {get; set;}
-        public required int ChoiceID {get; set;}
-        public  DateTime VoteDate{get; set;} = DateTime.Now;
+        public  Guid? ElectionVoterID {get; set;}
+        public  Guid? ElectionOptionID {get; set;}
         public Vote ToVote()
         {
             return new Vote
             {
-                VoteID = VoteID,
                 ElectionVoterID = ElectionVoterID,
-                ChoiceID = ChoiceID,
-                VoteDate = VoteDate
+                ElectionOptionID = ElectionOptionID,
             };
         }
     }
@@ -55,18 +49,18 @@ namespace ConfidentVotesAPI.Models
     {
         // foreign keys of person and election
         // they will be unique combination
-        public required int VoteID {get; set;}
-        public required int ElectionVoterID {get; set;}
-        public required int ChoiceID {get; set;}
-        public  DateTime VoteDate{get; set;} = DateTime.Now;
+        public  Guid Id {get; set;}
+        public  Guid? ElectionVoterID {get; set;}
+        public  Guid? ElectionOptionID {get; set;}
+        public  DateTimeOffset VotedOn{get; set;} = DateTimeOffset.UtcNow;
         public Vote ToVote()
         {
             return new Vote
             {
-                VoteID = VoteID,
+                Id = Id,
                 ElectionVoterID = ElectionVoterID,
-                ChoiceID = ChoiceID,
-                VoteDate = VoteDate
+                ElectionOptionID = ElectionOptionID,
+                VotedOn = VotedOn
             };
         }
     }

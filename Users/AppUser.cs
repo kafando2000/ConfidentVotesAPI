@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Identity;
 namespace ConfidentVotesAPI.Models
 {
     public class AppUser : IdentityUser<Guid>
-    {  
+    {
+      
         [MaxLength(100)]
         public string? FirstName { get; set; }
 
@@ -17,11 +18,32 @@ namespace ConfidentVotesAPI.Models
         public string? ProfilePictureUrl { get; set; }
         public bool IsActive { get; set; } = false;
         public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
-        public DateTimeOffset LastLogIn { get; set; } 
-        public List<Election> InitiatedElections { get;} = new List<Election>();
-        public List<ElectionVoter> ElectionsVoters { get;} = new List<ElectionVoter>();
+        public DateTimeOffset? LastLogIn { get; set; } 
+        public ICollection<Election> InitiatedElections { get;} = new HashSet<Election>();
+        public ICollection<ElectionVoter> ElectionsVoters { get;} = new HashSet<ElectionVoter>();
+        public AppUser()
+        {
+          Id = Guid.CreateVersion7(); 
+        }
     }
-     public class RegisterViewModel
+    public class AppUserResponseDto
+    {  
+        public Guid? Id{get; set;}
+        [MaxLength(100)]
+        public string? FirstName { get; set; }
+
+        [MaxLength(100)]
+        public string? LastName { get; set; }
+
+        [MaxLength(2048)]
+        public string? ProfilePictureUrl { get; set; }
+        public bool IsActive { get; set; } = false;
+        public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? LastLogIn { get; set; } 
+        public ICollection<ElectionResponseDto> InitiatedElections { get; set; } = new HashSet<ElectionResponseDto>();
+        public ICollection<ElectionVoterResponseDto> ElectionsVoters { get; set;} = new HashSet<ElectionVoterResponseDto>();
+    }
+     public class RegisterRequest
     {   
         [MaxLength(100)]
         public   string FirstName {get; set;} = string.Empty;
@@ -51,7 +73,7 @@ namespace ConfidentVotesAPI.Models
         [DataType(DataType.Password)]
         public  string PasswordConfirm {get; set;} = string.Empty;
     }
-     public class LoginViewModel
+     public class LoginRequest
     {   
         [Required]
         public required string Login {get; set;}
