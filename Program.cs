@@ -11,13 +11,14 @@ using ConfidentVotesAPI.CustomExceptionHandling;
 using Serilog;
 using ConfidentVotesAPI.CustomMiddleWare;
 using ConfidentVotesAPI.Utils;
+using ConfidentVotesAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 // get the connection string define in user-secret
 var connectionString =
     builder.Configuration.GetConnectionString("PsqlDatabase");
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
 builder.Services.Configure<IdentityOptions>(options =>
 {
     options.User.RequireUniqueEmail = true;
@@ -27,16 +28,42 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.Password.RequireUppercase = true;
     options.Password.RequireNonAlphanumeric = true;
 });
-
+// manages login redirection
+builder.Services.ConfigureApplicationCookie( options =>
+{
+    options.Events.OnRedirectToLogin =  httpContext => {
+        if(httpContext.Request.Path.StartsWithSegments("/api") && 
+            httpContext.Response.StatusCode == StatusCodes.Status200OK)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        }
+        httpContext.Response.Redirect(httpContext.RedirectUri);
+        return Task.CompletedTask;
+    };
+});
+// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
-// identity service
-// authentitication services
-// authorization services
 // db context service
 builder.Services.AddDbContext<ConfidentVotesDbContext>();
-// excetion services
+
+// identity service
+builder.Services.AddIdentityCore<AppUser>(options =>
+   {
+    options.SignIn.RequireConfirmedEmail = false  ;
+   }     
+)
+.AddRoles<AppRole>()
+.AddEntityFrameworkStores<ConfidentVotesDbContext>()
+.AddDefaultTokenProviders();
+
+// authentitication services
+builder.Services.AddAuthentication();
+// authorization services
+builder.Services.AddAuthorizationBuilder();
+// exception services
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 // api controller services 
@@ -48,11 +75,12 @@ builder.Services.AddControllers()
                             options.JsonSerializerOptions.PropertyNamingPolicy = 
                             JsonNamingPolicy.SnakeCaseLower;
                 });
+// 
 builder.Services.AddScoped<IVotesHandler,VotesHandler>();
-builder.Services.AddScoped<IUsersHandler,UsersHandler>();
-builder.Services.AddScoped<IChoicesHandler,ChoicesHandler>();
+//builder.Services.AddScoped<IUsersHandler,UsersHandler>();
+builder.Services.AddScoped<IOptionsHandler,OptionsHandler>();
 builder.Services.AddScoped<IElectionsHandler,ElectionsHandler>();
-builder.Services.AddScoped<IElectionVotersHandler,ElectionVotersHandler>();
+builder.Services.AddScoped<IVotersHandler,VotersHandler>();
 
 // logging configuration
 Log.Logger = new LoggerConfiguration()
@@ -66,7 +94,7 @@ app.UseExceptionHandler();
 // custom middleware
 if (!ArgsParser.IsTestWithSwaggerUI(args))
 {
-   app.UseMiddleware<GlobalValidator>(); 
+  // app.UseMiddleware<GlobalValidator>(); 
 }
 // simple middleware implementation
 app.Use( async (context, next) =>

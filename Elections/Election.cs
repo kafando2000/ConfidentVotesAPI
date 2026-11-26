@@ -20,9 +20,9 @@ namespace ConfidentVotesAPI.Models
         [Required]
         public  DateTimeOffset ElectionEnd {get; set;} =  DateTimeOffset.UtcNow;
         [Required]
-        //Collection navigation containing ElectionOptions and voters
-        public ICollection<ElectionOption> ElectionOptions {get;} = new HashSet<ElectionOption>();
-        public ICollection<ElectionVoter> Voters {get;} = new HashSet<ElectionVoter>();
+        //Collection navigation containing Options and voters
+        public ICollection<Option> Options {get;} = new HashSet<Option>();
+        public ICollection<Voter> Voters {get;} = new HashSet<Voter>();
         public ElectionResponseDto ToResponse()
         {
             return new ElectionResponseDto
@@ -33,7 +33,7 @@ namespace ConfidentVotesAPI.Models
                 Name = Name,
                 Description = Description ?? string.Empty,
                 AppUserId = AppUserId,
-                ElectionOptions = ElectionOptions.Select(c => c.ToResponse()).ToHashSet(),
+                Options = Options.Select(c => c.ToResponse()).ToHashSet(),
                 Voters = Voters.Select( v => v.ToResponse()).ToHashSet()
             };
         }
@@ -55,8 +55,11 @@ namespace ConfidentVotesAPI.Models
         public  string  Name {get; set;} = string.Empty;
         public  string?  Description {get; set;}
         // the id of the user who initiated the voteS
-        public  Guid? AppUserId {get; set;}
+        [Required]
+        public  Guid AppUserId {get; set;} = Guid.Empty;
+        [Required]
         public  DateTimeOffset ElectionStart {get; set;}
+        [Required]
         public  DateTimeOffset ElectionEnd {get; set;}
         public Election ToElection()
         {
@@ -79,8 +82,8 @@ namespace ConfidentVotesAPI.Models
         // the id of the user who initiated the voteS
         public required DateTimeOffset ElectionStart {get; set;}
         public required DateTimeOffset ElectionEnd {get; set;}
-        public ICollection<ElectionOptionResponseDto> ElectionOptions {get; set;} = new HashSet<ElectionOptionResponseDto>();
-        public ICollection<ElectionVoterResponseDto> Voters {get; set;} = new HashSet<ElectionVoterResponseDto>();
+        public ICollection<OptionResponseDto> Options {get; set;} = new HashSet<OptionResponseDto>();
+        public ICollection<VoterResponseDto> Voters {get; set;} = new HashSet<VoterResponseDto>();
         public Election ToElection()
         {
             return new Election

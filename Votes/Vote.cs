@@ -6,27 +6,24 @@ namespace ConfidentVotesAPI.Models
         // foreign keys of person and election
         // they will be unique combination
         public  Guid Id {get; set;} = Guid.CreateVersion7();
-        public  Guid? ElectionVoterID {get; set;}
-        public  Guid? ElectionOptionID {get; set;}
-        public ElectionVoter ElectionVoter {get;} = null!;
-        public ElectionOption ElectionOption {get;} = null!;
+        [Range(1.0, 10.0)]
+        public int Confidence {get; set;} = 10;
+        [Required]
+        public  Guid? VoterID {get; set;}
+        [Required]
+        public  Guid? OptionID {get; set;}
+        public Voter Voter {get;} = null!;
+        public Option Option {get;} = null!;
         public  DateTimeOffset VotedOn{get; set;} = DateTimeOffset.UtcNow;
         public VoteResponseDto ToResponse()
         {
             return new VoteResponseDto
             {
                 Id = Id,
-                ElectionVoterID = ElectionVoterID,
-                ElectionOptionID = ElectionOptionID,
+                Confidence = Confidence,
+                VoterID = VoterID,
+                OptionID = OptionID,
                 VotedOn = VotedOn
-            };
-        }
-        public VoteRequestDto ToRequest()
-        {
-            return new VoteRequestDto
-            {
-                ElectionVoterID = ElectionVoterID,
-                ElectionOptionID = ElectionOptionID,
             };
         }
     }
@@ -34,32 +31,31 @@ namespace ConfidentVotesAPI.Models
     {
         // foreign keys of person and election
         // they will be unique combination
-        public  Guid? ElectionVoterID {get; set;}
-        public  Guid? ElectionOptionID {get; set;}
-        public Vote ToVote()
-        {
-            return new Vote
-            {
-                ElectionVoterID = ElectionVoterID,
-                ElectionOptionID = ElectionOptionID,
-            };
-        }
+        [Range(1.0, 10.0)]
+        public int Confidence {get; set;} = 10;
+        [Required]
+        public  Guid? VoterID {get; set;}
+        [Required]
+        public  Guid? OptionID {get; set;}
     }
      public class VoteResponseDto
     {
         // foreign keys of person and election
         // they will be unique combination
         public  Guid Id {get; set;}
-        public  Guid? ElectionVoterID {get; set;}
-        public  Guid? ElectionOptionID {get; set;}
+        [Range(1.0, 10.0)]
+        public int Confidence {get; set;} = 10;
+        public  Guid? VoterID {get; set;}
+        public  Guid? OptionID {get; set;}
         public  DateTimeOffset VotedOn{get; set;} = DateTimeOffset.UtcNow;
         public Vote ToVote()
         {
             return new Vote
             {
                 Id = Id,
-                ElectionVoterID = ElectionVoterID,
-                ElectionOptionID = ElectionOptionID,
+                Confidence = Confidence,
+                VoterID = VoterID,
+                OptionID = OptionID,
                 VotedOn = VotedOn
             };
         }

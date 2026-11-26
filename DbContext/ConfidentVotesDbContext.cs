@@ -12,8 +12,8 @@ namespace ConfidentVotesAPI{
         }
         public  DbSet<Vote> Votes {get; set;}
         public  DbSet<Election> Elections {get; set;}
-        public  DbSet<ElectionOption> ElectionOptions {get; set;}
-        public  DbSet<ElectionVoter> ElectionVoters {get; set;}
+        public  DbSet<Option> Options {get; set;}
+        public  DbSet<Voter> Voters {get; set;}
         private readonly string? _connectionString;
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -29,10 +29,8 @@ namespace ConfidentVotesAPI{
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<Vote>( entity =>
             {   
-                entity.Property(e => e.VoteID)
-                      .ValueGeneratedOnAdd();
-                entity.HasIndex(e => e.ElectionVoterID)
-                      .IsUnique();
+               // entity.Property(e => e.Id)
+                 //     .ValueGeneratedOnAdd();
             }
             );
             // person <--> election  and person <--> vote  relationships
@@ -49,33 +47,29 @@ namespace ConfidentVotesAPI{
                     .IsUnique();
             }
             );
-            // choice <--> vote and choice <--> election relationships
-            modelBuilder.Entity<Choice>( entity =>
+            // Option <--> vote and Option <--> election relationships
+            modelBuilder.Entity<Option>( entity =>
             {
-                entity.Property(e => e.ChoiceID)
-                    .ValueGeneratedOnAdd();
                 entity
                     .HasMany(e => e.Votes)
-                    .WithOne(e => e.Choice);
+                    .WithOne(e => e.Option);
                 entity
                     .HasOne(e => e.Election)
-                    .WithMany(e => e.Choices);
+                    .WithMany(e => e.Options);
             }
             );
-            modelBuilder.Entity<ElectionVoter>( entity =>
+            modelBuilder.Entity<Voter>( entity =>
             {
-                entity.Property(e => e.ElectionVoterID)
-                    .ValueGeneratedOnAdd();
                 entity
                     .HasOne(e => e.Election)
                     .WithMany(e => e.Voters);
                 entity
-                    .HasIndex(e => new{e.PersonID, e.ElectionID})
+                    .HasIndex(e => new{e.AppUserId, e.ElectionId})
                     .IsUnique();
                 entity
                     .HasOne(e => e.Vote)
-                    .WithOne(e => e.ElectionVoter)
-                    .HasForeignKey<Vote>(e => e.ElectionVoterID);
+                    .WithOne(e => e.Voter)
+                    .HasForeignKey<Vote>(e => e.VoterID);
             }
             );
         }

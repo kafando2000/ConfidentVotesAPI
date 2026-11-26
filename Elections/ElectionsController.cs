@@ -25,52 +25,87 @@ namespace ConfidentVotesAPI.Controllers
             _MyElectionsHandler = electionsHandler;
         }
         /* ############### GET ############*/
+        // get all elections response
         [HttpGet]
-        public async Task<ActionResult<List<ElectionResponseDto>>> GetAll()
+        public async Task<ActionResult<List<ElectionResponseDto>>> GetAllAsync()
         {
-            var Elections = await _MyElectionsHandler.GetElections();
+            var Elections = await _MyElectionsHandler.GetElectionsAsync();
             return Ok(Elections);
         }
-         [HttpGet("{id:int:min(0)}")]
-        public async Task<ActionResult<ElectionResponseDto>> GetbyId(int id)
+        // get election by id response
+         [HttpGet("{id:Guid}")]
+        public async Task<ActionResult<ElectionResponseDto>> GetbyIdAsync(Guid id)
         {
-            var Election = await _MyElectionsHandler.GetElectionById(id);
-            return Ok(Election);
+            var election = await _MyElectionsHandler.GetElectionByIdAsync(id);
+            if(election is null)
+            {
+                return BadRequest($"{id} is not associated with an election.");
+            }
+            return Ok(election);
             
         }
-        [HttpGet("{id:int:min(0)}/choices")]
-        public async Task<ActionResult<ChoiceResponseDto>> GetChoicesByElectionId(int id)
+        // get options related to an election, response
+        [HttpGet("{id:Guid}/options")]
+        public async Task<ActionResult<OptionResponseDto>> GetOptionsByIdAsync(Guid id)
         {
-            var ElectionChoices = await _MyElectionsHandler.GetElectionChoices(id);
-            return Ok(ElectionChoices);
+            var election = await _MyElectionsHandler.GetElectionByIdAsync(id);
+            if( election == null)
+            {
+                return NotFound($"Id : {id} is not related to an election");
+            }
+            var ElectionOptions = await _MyElectionsHandler.GetElectionOptionsAsync(id);
+            return Ok(ElectionOptions);
             
         }
         [HttpPost] 
          /* ############### POST ############*/
         public async Task<ActionResult<ElectionResponseDto>> Create( [FromBody] ElectionRequestDto newElection)
         {
-            await _MyElectionsHandler.addElection(newElection);
-            return AcceptedAtAction(actionName:nameof(GetbyId), 
-                       routeValues: new {id = newElection.ElectionID}, 
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem();
+            }
+            var election = await _MyElectionsHandler.addElectionAsync(newElection);
+            if(election == null)
+            {
+                return BadRequest($@"check your model data, something is not okay !\n
+                 possible causes:\n
+                       1. Election User data is not corrected.\n
+                       2. Election End datetime and Start datetime are the same.\n"); 
+            }
+            return AcceptedAtAction(actionName:nameof(GetbyIdAsync), 
+                       routeValues: new {id = election.Id}, 
                        value:newElection);
         }
         /* ############### PUT ############*/
-        [HttpPut("{id:int:min(0)}")] 
-        public async Task<ActionResult<ElectionResponseDto>> Update(int id, ElectionRequestDto updatedElection)
+        [HttpPut("{id:Guid}")] 
+        public async Task<ActionResult<ElectionResponseDto>> Update(Guid id, ElectionRequestDto updatedElection)
         {
-           
-            await _MyElectionsHandler.UpdateElection(id, updatedElection);
-            return AcceptedAtAction(actionName:nameof(GetbyId), 
-                       routeValues: new {id = updatedElection.ElectionID}, 
+            if (!ModelState.IsValid)
+            {
+                return ValidationProblem();
+            }
+            var election = await _MyElectionsHandler.UpdateElectionAsync(id, updatedElection);
+            if(election == null)
+            {
+                return BadRequest($@"check your model data, something is not okay !\n
+                 possible causes:\n
+                       1. Maybe the id : {id} is not related to any election.\n
+                       2. Election User data is not corrected.\n
+                       3. Election End datetime and Start datetime are the same.\n");   
+            }   
+            return AcceptedAtAction(actionName:nameof(GetbyIdAsync), 
+                       routeValues: new {id = election.Id}, 
                        value:updatedElection);
         }
 
         /* ############### DELETE ############*/
-        [HttpDelete("{id:int:min(1)}")] 
-        public async Task<ActionResult<ElectionResponseDto>> Delete(int id)
+        [HttpDelete("{id:Guid}")] 
+        public async Task<ActionResult<ElectionResponseDto>> Delete(Guid id)
         {
-            await _MyElectionsHandler.RemoveElection(id);
-            return NoContent();
+            var isRemoved = await _MyElectionsHandler.RemoveElectionAsync(id);
+        
+            return isRemoved ? NoContent() : BadRequest($"Id : {id} might not be related to an election anymore or try again."); 
         }
     }
 }

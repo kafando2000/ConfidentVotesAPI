@@ -6,14 +6,14 @@ namespace AppUserAuthenticaiton;
 public static class AuthEndpoints
 {
     // authentiction 
-    public static void MapAuthEndpoints(this IEndpointRouteBuilder app)
+    public static void MapAuthEndpoints(this RouteGroupBuilder app)
     {
         var group = app.MapGroup("/confidentvotesapi/auth");
 
         // registration
         group.MapPost("/register", async (
             RegisterRequest req,
-            UserManager<AppUser> userManager) =>
+            UserManager<AppUser> userManager, RoleManager<AppRole> roleManager) =>
         {
             var user = new AppUser
             {
@@ -22,12 +22,19 @@ public static class AuthEndpoints
                 FirstName = req.FirstName,
                 LastName = req.LastName
             };
-
+            // create user 
             var result = await userManager.CreateAsync(user, req.Password);
+            // if(await roleManager.RoleExistsAsync("User"))
+            // {
+            //     await roleManager.CreateAsync( new AppRole{ Name = "User"});
+            // }
+            if(result.Succeeded)
+            {
+                await userManager.AddToRoleAsync(user, "User");
+                return Results.Ok(new { user.Id, user.UserName });
+            }
 
-            return result.Succeeded
-                ? Results.Ok(new { user.Id, user.Email })
-                : Results.ValidationProblem(result.Errors.ToDictionary(e => e.Code, e => new[] { e.Description }));
+            return Results.ValidationProblem(result.Errors.ToDictionary(e => e.Code, e => new[] { e.Description }));
         });
 
         // login

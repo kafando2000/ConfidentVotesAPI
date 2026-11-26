@@ -6,95 +6,108 @@ using ConfidentVotesAPI.CustomExceptionHandling;
 using Serilog;
 using Microsoft.EntityFrameworkCore;
 using ConfidentVotesAPI;
+using Microsoft.AspNetCore.Identity;
 
 namespace ConfidentVotesAPI.Services
 {
     public interface IElectionsHandler
     {   
-        public Task<List<ElectionResponseDto>> GetElections();
-        public Task<ElectionResponseDto> GetElectionById(int id);
-        public  Task addElection(ElectionRequestDto election);
-        public  Task RemoveElection(int id);
-        public  Task UpdateElection(int Id, ElectionRequestDto election);
-        public Task<List<ChoiceResponseDto>> GetElectionChoices(int electionId);
+        public Task<HashSet<ElectionResponseDto>> GetElectionsAsync();
+        public Task<ElectionResponseDto?> GetElectionByIdAsync(Guid id);
+        public  Task<ElectionResponseDto?> addElectionAsync(ElectionRequestDto election);
+        public  Task<bool> RemoveElectionAsync(Guid id);
+        public  Task<ElectionResponseDto?> UpdateElectionAsync(Guid id, ElectionRequestDto election);
+        public Task<HashSet<OptionResponseDto>> GetElectionOptionsAsync(Guid electionId);
         
     }
     public class ElectionsHandler : IElectionsHandler
     {   
-        public ElectionsHandler(ConfidentVotesDbContext dbContext)
+        public ElectionsHandler(ConfidentVotesDbContext dbContext, UserManager<AppUser> userManager)
         {
             _ServiceId = new Random().Next(201, 2000);
             _DbContext = dbContext;
+            _UserManager = userManager;
         }
         private readonly int _ServiceId;
         private ConfidentVotesDbContext _DbContext;
-        // Elections list
-        //private List<Election> Elections = new List<Election>();
-        public async Task<ElectionResponseDto> GetElectionById(int id)
+        private UserManager<AppUser> _UserManager;
+        // get an election by id
+        public async Task<ElectionResponseDto?> GetElectionByIdAsync(Guid id)
         {
-            var election = await _DbContext.Elections.Include(e => e.Choices)
+            var election = await _DbContext.Elections.Include(e => e.Options)
                                              .ThenInclude(c => c.Votes)
-                                             .FirstOrDefaultAsync(p => p.ElectionID == id);
+                                             .FirstOrDefaultAsync(p => p.Id == id);
             if( election == null)
             {
-                throw new BadValueException($"{id}");
+                return null;
             }
           
             return  election.ToResponse();
         }
-        public async Task addElection(ElectionRequestDto election)
+        // add a new election
+        public async Task<ElectionResponseDto?> addElectionAsync(ElectionRequestDto newElection)
         {   
-            if(election == null)
+            if(newElection.AppUserId == Guid.Empty || 
+                await _UserManager.FindByIdAsync(newElection.AppUserId.ToString()) == null ||
+                newElection.ElectionEnd == newElection.ElectionStart
+                )
             {
-                throw new BadBodyException("Body can't be empty.");
+                return null;
             }
-            var dbelection = election.ToElection();
+            var dbelection = newElection.ToElection();
            _DbContext.Add(dbelection);
            await _DbContext.SaveChangesAsync();
+           return dbelection.ToResponse();
         }
-
-        public async Task RemoveElection(int id)
+        // delete an election  
+        public async Task<bool> RemoveElectionAsync(Guid id)
         {  
+            bool isRemoved = false;
             var election = await _DbContext.FindAsync<Election>(id);
             if (election == null)
             {
-               throw new BadPathException($"{id}");
+               return isRemoved;
             }
             _DbContext.Remove(election);
+
             await _DbContext.SaveChangesAsync();
+            isRemoved = true;
+            return isRemoved;
     
         }
-        public async Task UpdateElection(int id, ElectionRequestDto election)
+        // update an election  
+        public async Task<ElectionResponseDto?> UpdateElectionAsync(Guid id, ElectionRequestDto updatedElection)
         {
             var trackedElection = await _DbContext.FindAsync<Election>(id);
-            if (trackedElection == null)
+            if (trackedElection == null ||
+             updatedElection.ElectionEnd == updatedElection.ElectionStart
+             )
             {
-               throw new BadPathException($"{id}");
+               return null;
             }
-            trackedElection.ElectionEnd = election.ElectionEnd;
-            trackedElection.ElectionStart = election.ElectionStart;
-            trackedElection.Name = election.Name;
-            trackedElection.Description = election.Description;
+            trackedElection.ElectionEnd = updatedElection.ElectionEnd;
+            trackedElection.ElectionStart = updatedElection.ElectionStart;
+            trackedElection.Name = updatedElection.Name;
+            trackedElection.Description = updatedElection.Description;
             await _DbContext.SaveChangesAsync();
+            return trackedElection.ToResponse();
         }
-        public async Task<List<ElectionResponseDto>> GetElections()
+        // get all election 
+        public async Task<HashSet<ElectionResponseDto>> GetElectionsAsync()
         {
-            return await _DbContext.Elections.Select(election => election.ToResponse()).ToListAsync<ElectionResponseDto>();
+            return await _DbContext.Elections.Select(election => election.ToResponse())
+                                             .ToHashSetAsync();
                 
         }
-        public async Task<List<ChoiceResponseDto>> GetElectionChoices(int electionId)
+        // get all options related to an election, with their votes
+        public async Task<HashSet<OptionResponseDto>> GetElectionOptionsAsync(Guid electionId)
         {
-            var choices = await _DbContext.Choices.Include(c => c.Votes)
-                .Where(choice => choice.ElectionID == electionId)
-                .Select(choice => choice.ToResponse())
-                .ToListAsync();
-
-            if (choices is null)
-            {
-                throw new BadPathException($"{electionId}");
-            }
-
-            return choices;
+            
+            var options = await _DbContext.Options.Include(c => c.Votes)
+                .Where(Option => Option.ElectionId == electionId)
+                .Select(Option => Option.ToResponse())
+                .ToHashSetAsync();
+            return options;
         }
 
     }
