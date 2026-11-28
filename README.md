@@ -33,14 +33,13 @@ In this project, the following functionalities have been implemented:
     
      <br>
  4. run the project: <br>
-    test with swagger UI (it bypass a custom validator for headers ): <br>
+      If willing to generate an api client when running: <br>
 
       ```bash 
-      dotnet watch run --testwithswaggerui true 
+      dotnet watch run --generateapiclient true 
       ```
        <br>
-       head to http://localhost:5284/swagger/index.html to test <br>
-      test with the custom validator: <br>
+      if not :
 
       ```bash 
       dotnet watch run
