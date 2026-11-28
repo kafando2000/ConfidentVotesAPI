@@ -1,33 +1,54 @@
-# REST API for votes
-## A fully working REST API built with ASP.NET Core, integrating custom middleware for request validation and response duration tracking,   and tested with Swagger UI. It also generated an API client in C# using the NSwag library.
+# REST API for elections management
+## API is aimed at management elections either for a small ones or in the future implementation for  nation-wide elections management. 
 
 In this project, the following functionalities have been implemented:
-  * Users service as Singleton to manage CRUD operations on user data
-  * Votes service as Singleton to manage CRUD operations on vote data
-  * Controllers for routing endpoints and CRUD operations for both Users and Votes
-  * Custom exceptions for custom  headers in the request; for example, the "API-SIGNATURE" key was used
-  * GlobalValidator middleware for custom exception handling
-  * Swagger UI test using OpenAPI standard
-  * Built-in authentication and authorization middleware
-  * API client generation in C# code
+  * Complete data base schema and integration with ASPNetCore EF and PostgreSql.
+  * User Authentication and authorization implementation (Role-Based Access Control And Claim-Based Authorization).
+  * Controllers for routing endpoints and CRUD operations for elections, options, voters and votes.
+  * Custom middleware for headers.
+  * GlobalValidator middleware for custom exception handling.
+  * Swagger UI test using OpenAPI standard.
 
-![Swagger UI of the API](assets/swagger.png)
+<!-- ![Swagger UI of the API](assets/swagger.png) -->
 
 ## How to install and run ConfidentVoteAPI
  1. Install .NET 10 SDK
- 2. clone the repo with: <br>
+ 2. Install PostgreSql and create login  
+
+    ```bash
+    dotnet user-secrets set "ConnectionStrings:PsqlDatabase" "Host=localhost;Port=your_db_port;Database=your_db;Username=yours;Password=your_password;"
+    ```
+ 3. clone the repo with: <br>
     for https users: <br>
-    `git clone https://github.com/kafando2000/ConfidentVotesAPI.git` <br>
+
+    ```bash
+    git clone https://github.com/kafando2000/ConfidentVotesAPI.git
+    ``` 
+    <br>
     for ssh users: <br>
-    `git clone git@github.com:kafando2000/ConfidentVotesAPI.git` <br>
- 3. run the project: <br>
+
+    ```bash
+    git clone git@github.com:kafando2000/ConfidentVotesAPI.git
+    ```
+    
+     <br>
+ 4. run the project: <br>
     test with swagger UI (it bypass a custom validator for headers ): <br>
-      `dotnet watch run --testwithswaggerui true` <br>
+
+      ```bash 
+      dotnet watch run --testwithswaggerui true 
+      ```
+       <br>
        head to http://localhost:5284/swagger/index.html to test <br>
-    test with the custom validator: <br>
-      `dotnet watch run --testwithswaggerui false` <br>
+      test with the custom validator: <br>
+
+      ```bash 
+      dotnet watch run
+      ```
+      <br>
        can use ConfidentVotesAPI.http file (locate at the root of the project folder) to test 
 
-## Next
- For the moment the project is using session services to store data, 
- later on connection to real data base will be implemented
+## Next Step
+ 1. Implement a clean client (User Interface) for Election creation and Management.
+ 2. Enhance Users Anonymity during votes by using encription for their special ID.
+ 3. Deploy deploy the client on Azure.
