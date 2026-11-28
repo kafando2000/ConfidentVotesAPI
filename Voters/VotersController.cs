@@ -5,19 +5,18 @@ using ConfidentVotesAPI.Models;
 using System.Reflection;
 using System.Text.Json;
 using ConfidentVotesAPI.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ConfidentVotesAPI.Controllers
 {
     [ApiController]
 
     //[Route("confidentvotesapi/[controller]")]
-    [Route("confidentvotes/api/Voters")]
+    [Route("confidentvotes/api/voters")]
     // the class must be public
     public class VotersController : ControllerBase
     {   
-     
         public required IVotersHandler  _MyVotersHandler ;
-
         // when the controller is create the only one instance of 
         // IProductsHandler will be used or reused
         public VotersController(IVotersHandler VotersHandler)
@@ -26,44 +25,69 @@ namespace ConfidentVotesAPI.Controllers
         }
         /* ############### GET ############*/
         [HttpGet]
-        public async Task<ActionResult<List<VoterResponseDto>>> GetAll()
+        [Authorize]
+        public async Task<ActionResult<HashSet<VoterResponseDto>>> GetAll()
         {
-            var Voters = await _MyVotersHandler.GetVoters();
-            return Ok(Voters);
+            return Ok(await _MyVotersHandler.GetVotersAsync());
         }
-         [HttpGet("{id:int:min(0)}")]
+        [HttpGet("{id:Guid}")]
+        [Authorize] 
         public async Task<ActionResult<VoterResponseDto>> GetbyId(Guid id)
         {
-            var Voter = await _MyVotersHandler.GetVoterById(id);
-            return Ok(Voter);
+            var voter = await _MyVotersHandler.GetVoterByIdAsync(id);
+            return voter != null ? Ok(voter) : BadRequest(@$"Check your data, something is wrong. 
+            The likely cause is that
+            the provided id : {id} is not related to any voter");
             
         }
-        [HttpPost] 
+        
          /* ############### POST ############*/
-        public async Task<ActionResult<ElectionResponseDto>> Create( VoterRequestDto newVoter)
+        [HttpPost] 
+        [Authorize]
+        public async Task<ActionResult<VoterResponseDto>> Create( VoterRequestDto newVoter)
         {
-            await _MyVotersHandler.addVoter(newVoter);
+
+            var voter = await _MyVotersHandler.addVoterAsync(newVoter);
+            if(voter == null)
+            {
+                return BadRequest($@"Something is wrong :
+                The likely causes are :
+                    1. Id of Election: {newVoter.ElectionId} is not related to any election
+                    2. Id of User : {newVoter.AppUserId} is not related to any user");                
+            }
             return AcceptedAtAction(actionName:nameof(GetbyId), 
                        routeValues: new {id = Guid.CreateVersion7()}, 
                        value:newVoter);
         }
         /* ############### PUT ############*/
         [HttpPut("{id:Guid}")] 
-        public async Task<ActionResult<ElectionResponseDto>> Update(Guid id, VoterRequestDto updatedVoter)
+        [Authorize]
+        public async Task<ActionResult<VoterResponseDto>> Update(Guid id, VoterRequestDto updatedVoter)
         {
            
-            await _MyVotersHandler.UpdateVoter(id, updatedVoter);
+            var voter = await _MyVotersHandler.UpdateVoterAsync(id, updatedVoter);
+            if(voter == null)
+            {
+                return BadRequest($@"Something is wrong :
+                The likely causes are:
+                    1. Id : {id} is not related to any voter
+                    2. Id of User : {updatedVoter.AppUserId} is not related to any user");  
+            }
             return AcceptedAtAction(actionName:nameof(GetbyId), 
-                       routeValues: new {id = Guid.CreateVersion7()}, 
+                       routeValues: new {id = voter.Id}, 
                        value:updatedVoter);
         }
 
         /* ############### DELETE ############*/
-        [HttpDelete("{id:int:min(1)}")] 
+        [HttpDelete("{id:Guid}")] 
+        [Authorize]
         public async Task<ActionResult<VoterResponseDto>> Delete(Guid id)
         {
-            await _MyVotersHandler.RemoveVoter(id);
-            return NoContent();
+            var isDeleted = await _MyVotersHandler.RemoveVoterAsync(id);
+            return isDeleted ? NoContent() : 
+                                        BadRequest(@$"Check your data, something is wrong. 
+                                        The likely cause is that
+                                        the provided id : {id} is not related to any voter");
         }
     }
 }

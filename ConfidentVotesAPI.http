@@ -1,15 +1,42 @@
 @ConfidentVotesAPI_HostAddress = http://localhost:5284
 
 ###
-POST {{ConfidentVotesAPI_HostAddress}}/api/users
+POST {{ConfidentVotesAPI_HostAddress}}/create-role
 Content-Type: application/json
-API-SIGNATURE: CONFIDENT_API_kaf@#fam
+
+###
+POST {{ConfidentVotesAPI_HostAddress}}/auth/register
+Content-Type: application/json
 
 {
-    "id": 1,
-    "full_name": "KAFANDO THOMAS",
-    "email": "kaf",
-    "user_name": "kafthom",
+    "email": "thomas200@gmail.com",
+    "user_name": "kafthom23",
+    "password": "2678@&oijGui4"
+}
+###
+POST {{ConfidentVotesAPI_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+    "login": "kafthom23",
+    "password": "2678@&oijGui4"
+}
+###
+POST {{ConfidentVotesAPI_HostAddress}}/auth/register/confidentvotes-admin
+Content-Type: application/json
+
+{
+    "user_name": "kafthom2",
+    "email": "kafando2thomas@gmail.com",
+    "password": "2678@&oijGui4"
+}
+###
+POST {{ConfidentVotesAPI_HostAddress}}/auth/login
+Content-Type: application/json
+
+{
+    "login": "kafthom2",
+    "password": "2678@&oijGui4"
 }
 ###
 GET {{ConfidentVotesAPI_HostAddress}}/api/users
@@ -20,9 +47,9 @@ GET {{ConfidentVotesAPI_HostAddress}}/api/users
 API-SIGNATURE: CONFIDENT_API_kaf@#fam
 
 ###
-POST {{ConfidentVotesAPI_HostAddress}}/api/votes
+GET {{ConfidentVotesAPI_HostAddress}}/confidentvotes/api/votes
 Content-Type: application/json
-API-SIGNATURE: CONFIDENT_API_kaf@#fam
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwMWEyMjIyNS0wN2Q4LTc2MTItOTcwOS1jMmE4OTI0OGNlYjUiLCJqdGkiOiJ0aG9tYXMyMDBAZ21haWwuY29tIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiVXNlciIsImV4cCI6MTc5NTg3MTY2OCwiaXNzIjoiL21lIiwiYXVkIjoid2UifQ.SBfZ2aXYfWYcZwIRt_H8XErlBec7nSjKfP5KQRZBXCI
 
 {
     "id": 1,

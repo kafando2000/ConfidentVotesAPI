@@ -11,9 +11,9 @@ namespace ConfidentVotesAPI.Models
         public  string  Name {get; set;} = string.Empty;
         [MaxLength(10000)]
         public  string?  Description {get; set;}
-        // the id of the user who initiated the voteS
-        [Required]
-        public  Guid AppUserId {get; set;}
+        // the id of the user who initiated the election
+        [DeniedValues("00000000-0000-0000-0000-000000000000", ErrorMessage = "AppUserId cannot be empty.")]
+        public  Guid InitiatorId {get; set;}
         public AppUser Initiator{ get; } = null!;
         [Required]
         public  DateTimeOffset ElectionStart {get; set;} = DateTimeOffset.UtcNow;
@@ -32,7 +32,7 @@ namespace ConfidentVotesAPI.Models
                 ElectionStart = ElectionStart,
                 Name = Name,
                 Description = Description ?? string.Empty,
-                AppUserId = AppUserId,
+                InitiatorId = InitiatorId,
                 Options = Options.Select(c => c.ToResponse()).ToHashSet(),
                 Voters = Voters.Select( v => v.ToResponse()).ToHashSet()
             };
@@ -45,9 +45,10 @@ namespace ConfidentVotesAPI.Models
                 ElectionStart = ElectionStart,
                 Name = Name,
                 Description = Description,
-                AppUserId = AppUserId,
+                InitiatorId = InitiatorId,
             };
         }
+
     }
     public class ElectionRequestDto
     {
@@ -56,7 +57,8 @@ namespace ConfidentVotesAPI.Models
         public  string?  Description {get; set;}
         // the id of the user who initiated the voteS
         [Required]
-        public  Guid AppUserId {get; set;} = Guid.Empty;
+        [DeniedValues("00000000-0000-0000-0000-000000000000", ErrorMessage = "AppUserId cannot be empty.")]
+        public  Guid InitiatorId {get; set;} = Guid.Empty;
         [Required]
         public  DateTimeOffset ElectionStart {get; set;}
         [Required]
@@ -65,6 +67,7 @@ namespace ConfidentVotesAPI.Models
         {
             return new Election
             {
+                InitiatorId = InitiatorId,
                 ElectionEnd = ElectionEnd,
                 ElectionStart = ElectionStart,
                 Name = Name,
@@ -72,16 +75,15 @@ namespace ConfidentVotesAPI.Models
             };
         }
     }
-    
      public class ElectionResponseDto
     {
-        public  Guid? Id  {get; set;}
+        public  Guid Id  {get; set;}
         public  string  Name {get; set;} = string.Empty;
         public  string  Description {get; set;} = string.Empty;
-        public Guid AppUserId { get; set; }
+        public Guid InitiatorId { get; set; }
         // the id of the user who initiated the voteS
-        public required DateTimeOffset ElectionStart {get; set;}
-        public required DateTimeOffset ElectionEnd {get; set;}
+        public  DateTimeOffset ElectionStart {get; set;}
+        public  DateTimeOffset ElectionEnd {get; set;}
         public ICollection<OptionResponseDto> Options {get; set;} = new HashSet<OptionResponseDto>();
         public ICollection<VoterResponseDto> Voters {get; set;} = new HashSet<VoterResponseDto>();
         public Election ToElection()
@@ -92,7 +94,7 @@ namespace ConfidentVotesAPI.Models
                 ElectionStart = ElectionStart,
                 Name = Name,
                 Description = Description,
-                AppUserId = AppUserId
+                InitiatorId = InitiatorId
             };
         }
     }

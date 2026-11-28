@@ -47,8 +47,8 @@ namespace ConfidentVotesAPI.Services
         // add a new election
         public async Task<ElectionResponseDto?> addElectionAsync(ElectionRequestDto newElection)
         {   
-            if(newElection.AppUserId == Guid.Empty || 
-                await _UserManager.FindByIdAsync(newElection.AppUserId.ToString()) == null ||
+            if(newElection.InitiatorId == Guid.Empty || 
+                await _UserManager.FindByIdAsync(newElection.InitiatorId.ToString()) == null ||
                 newElection.ElectionEnd == newElection.ElectionStart
                 )
             {
@@ -69,10 +69,9 @@ namespace ConfidentVotesAPI.Services
                return isRemoved;
             }
             _DbContext.Remove(election);
-
             await _DbContext.SaveChangesAsync();
-            isRemoved = true;
-            return isRemoved;
+            
+            return !isRemoved;
     
         }
         // update an election  
@@ -80,7 +79,8 @@ namespace ConfidentVotesAPI.Services
         {
             var trackedElection = await _DbContext.FindAsync<Election>(id);
             if (trackedElection == null ||
-             updatedElection.ElectionEnd == updatedElection.ElectionStart
+             updatedElection.InitiatorId != trackedElection.InitiatorId ||
+             updatedElection.ElectionEnd == updatedElection.ElectionStart 
              )
             {
                return null;

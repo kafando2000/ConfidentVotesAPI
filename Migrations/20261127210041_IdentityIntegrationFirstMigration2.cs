@@ -5,25 +5,18 @@
 namespace ConfidentVotesAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class UserModelchnages : Migration
+    public partial class IdentityIntegrationFirstMigration2 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "password",
-                table: "users",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "password",
-                table: "users");
+
         }
     }
 }

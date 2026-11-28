@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 namespace ConfidentVotesAPI{
-    public class AppRole : IdentityRole<Guid> { }
+   public class AppRole : IdentityRole<Guid> { }
    public  class ConfidentVotesDbContext : IdentityDbContext<AppUser, AppRole, Guid>
     {   
         public ConfidentVotesDbContext(IConfiguration configuration)
@@ -33,12 +33,12 @@ namespace ConfidentVotesAPI{
                  //     .ValueGeneratedOnAdd();
             }
             );
-            // person <--> election  and person <--> vote  relationships
+            // AppUser <--> election  and AppUser <--> vote  relationships
             modelBuilder.Entity<AppUser>( entity =>
             {
                 entity
-                    .HasMany(e => e.ElectionsVoters)
-                    .WithOne(e => e.Person);
+                    .HasMany(e => e.RelatedVoters)
+                    .WithOne(e => e.AppUser);
                 entity
                     .HasMany(e => e.InitiatedElections)
                     .WithOne(e => e.Initiator);
@@ -56,6 +56,9 @@ namespace ConfidentVotesAPI{
                 entity
                     .HasOne(e => e.Election)
                     .WithMany(e => e.Options);
+                entity
+                    .HasIndex(e => new{e.ElectionId, e.Title})
+                    .IsUnique();
             }
             );
             modelBuilder.Entity<Voter>( entity =>
@@ -69,7 +72,7 @@ namespace ConfidentVotesAPI{
                 entity
                     .HasOne(e => e.Vote)
                     .WithOne(e => e.Voter)
-                    .HasForeignKey<Vote>(e => e.VoterID);
+                    .HasForeignKey<Vote>(e => e.VoterId);
             }
             );
         }

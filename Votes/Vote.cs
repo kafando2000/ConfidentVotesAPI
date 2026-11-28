@@ -6,14 +6,18 @@ namespace ConfidentVotesAPI.Models
         // foreign keys of person and election
         // they will be unique combination
         public  Guid Id {get; set;} = Guid.CreateVersion7();
-        [Range(1.0, 10.0)]
-        public int Confidence {get; set;} = 10;
+        [Range(0.01, 1.0)]
         [Required]
-        public  Guid? VoterID {get; set;}
-        [Required]
-        public  Guid? OptionID {get; set;}
+        public double Confidence {get; set;} = 1.0; // 100% confident
+
+        [DeniedValues("00000000-0000-0000-0000-000000000000", ErrorMessage = "VoterId cannot be empty.")]
+        public  Guid VoterId {get; set;} = Guid.Empty;
+
+        [DeniedValues("00000000-0000-0000-0000-000000000000", ErrorMessage = "OptionId cannot be empty.")]
+        public  Guid OptionId {get; set;} = Guid.Empty;
         public Voter Voter {get;} = null!;
         public Option Option {get;} = null!;
+        [Required]
         public  DateTimeOffset VotedOn{get; set;} = DateTimeOffset.UtcNow;
         public VoteResponseDto ToResponse()
         {
@@ -21,8 +25,8 @@ namespace ConfidentVotesAPI.Models
             {
                 Id = Id,
                 Confidence = Confidence,
-                VoterID = VoterID,
-                OptionID = OptionID,
+                VoterId = VoterId,
+                OptionId = OptionId,
                 VotedOn = VotedOn
             };
         }
@@ -32,11 +36,21 @@ namespace ConfidentVotesAPI.Models
         // foreign keys of person and election
         // they will be unique combination
         [Range(1.0, 10.0)]
-        public int Confidence {get; set;} = 10;
-        [Required]
-        public  Guid? VoterID {get; set;}
-        [Required]
-        public  Guid? OptionID {get; set;}
+        public double Confidence {get; set;} = 1.0; // 100% confident
+
+        [DeniedValues("00000000-0000-0000-0000-000000000000", ErrorMessage = "VoterId cannot be empty.")]
+        public  Guid VoterId {get; set;} = Guid.Empty;
+        [DeniedValues("00000000-0000-0000-0000-000000000000", ErrorMessage = "OptionId cannot be empty.")]
+        public  Guid OptionId {get; set;} = Guid.Empty;
+        public Vote ToVote()
+        {
+            return new Vote
+            {
+                Confidence = Confidence,
+                VoterId = VoterId,
+                OptionId = OptionId
+            };
+        }
     }
      public class VoteResponseDto
     {
@@ -44,9 +58,9 @@ namespace ConfidentVotesAPI.Models
         // they will be unique combination
         public  Guid Id {get; set;}
         [Range(1.0, 10.0)]
-        public int Confidence {get; set;} = 10;
-        public  Guid? VoterID {get; set;}
-        public  Guid? OptionID {get; set;}
+        public double Confidence {get; set;} = 1.0; // 100% confident
+        public  Guid VoterId {get; set;} = Guid.Empty;
+        public  Guid OptionId {get; set;} = Guid.Empty;
         public  DateTimeOffset VotedOn{get; set;} = DateTimeOffset.UtcNow;
         public Vote ToVote()
         {
@@ -54,8 +68,8 @@ namespace ConfidentVotesAPI.Models
             {
                 Id = Id,
                 Confidence = Confidence,
-                VoterID = VoterID,
-                OptionID = OptionID,
+                VoterId = VoterId,
+                OptionId = OptionId,
                 VotedOn = VotedOn
             };
         }

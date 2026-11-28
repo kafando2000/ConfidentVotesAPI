@@ -20,7 +20,7 @@ namespace ConfidentVotesAPI.Models
         public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? LastLogIn { get; set; } 
         public ICollection<Election> InitiatedElections { get;} = new HashSet<Election>();
-        public ICollection<ElectionVoter> ElectionsVoters { get;} = new HashSet<ElectionVoter>();
+        public ICollection<Voter> RelatedVoters { get;} = new HashSet<Voter>();
         public AppUser()
         {
           Id = Guid.CreateVersion7(); 
@@ -41,7 +41,7 @@ namespace ConfidentVotesAPI.Models
         public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? LastLogIn { get; set; } 
         public ICollection<ElectionResponseDto> InitiatedElections { get; set; } = new HashSet<ElectionResponseDto>();
-        public ICollection<ElectionVoterResponseDto> ElectionsVoters { get; set;} = new HashSet<ElectionVoterResponseDto>();
+        public ICollection<VoterResponseDto> RelatedVoters { get; set;} = new HashSet<VoterResponseDto>();
     }
      public class RegisterRequest
     {   

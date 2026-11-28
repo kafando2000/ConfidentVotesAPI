@@ -8,9 +8,10 @@ namespace ConfidentVotesAPI.Models
         public Guid Id {get; set;} = Guid.CreateVersion7();
         [Required]
         [MaxLength(200)]
+        [MinLength(2)]
         public string  Title {get; set;} = string.Empty;
-        [Required]
-        public Guid ElectionId  {get; set;}
+        [DeniedValues("00000000-0000-0000-0000-000000000000", ErrorMessage = "ElectionId cannot be empty.")]
+        public Guid ElectionId  {get; set;} = Guid.Empty;
         public Election Election {get; set;} = null!;
         public ICollection<Vote> Votes {get;} = new HashSet<Vote>();
         public OptionResponseDto ToResponse()
@@ -27,8 +28,10 @@ namespace ConfidentVotesAPI.Models
     public class OptionRequestDto
     {   
         [Required]
+        [MaxLength(200)]
+        [MinLength(2)]
         public  string  Title {get; set;} = string.Empty;
-        [Required]
+        [DeniedValues("00000000-0000-0000-0000-000000000000", ErrorMessage = "ElectionId cannot be empty.")]
         public  Guid ElectionId  {get; set;} = Guid.Empty;
         public Option ToOption()
         {
@@ -41,9 +44,9 @@ namespace ConfidentVotesAPI.Models
     }
     public class OptionResponseDto
     {   
-        public Guid Id {get; set;}        
-        public  Guid ElectionId  {get; set;}
-        public required string  Title {get; set;}
+        public Guid Id {get; set;}  = Guid.Empty;      
+        public  Guid ElectionId  {get; set;} = Guid.Empty;
+        public required string  Title {get; set;} = string.Empty;
         public ICollection<VoteResponseDto> Votes {get; set;} = new HashSet<VoteResponseDto>();
     }
 }

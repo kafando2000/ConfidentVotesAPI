@@ -17,270 +17,561 @@ namespace ConfidentVotesAPI.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.14")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("ConfidentVotesAPI.Models.Choice", b =>
+            modelBuilder.Entity("ConfidentVotesAPI.AppRole", b =>
                 {
-                    b.Property<int>("ChoiceID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("choice_id");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ChoiceID"));
-
-                    b.Property<int>("ElectionID")
-                        .HasColumnType("integer")
-                        .HasColumnName("election_id");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
                         .HasColumnType("text")
-                        .HasColumnName("title");
+                        .HasColumnName("concurrency_stamp");
 
-                    b.HasKey("ChoiceID")
-                        .HasName("pk_choices");
+                    b.Property<string>("Name")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("name");
 
-                    b.HasIndex("ElectionID")
-                        .HasDatabaseName("ix_choices_election_id");
+                    b.Property<string>("NormalizedName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("normalized_name");
 
-                    b.ToTable("choices", (string)null);
+                    b.HasKey("Id")
+                        .HasName("pk_asp_net_roles");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique()
+                        .HasDatabaseName("RoleNameIndex");
+
+                    b.ToTable("AspNetRoles", (string)null);
+                });
+
+            modelBuilder.Entity("ConfidentVotesAPI.Models.AppUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AccessFailedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("access_failed_count");
+
+                    b.Property<string>("ConcurrencyStamp")
+                        .IsConcurrencyToken()
+                        .HasColumnType("text")
+                        .HasColumnName("concurrency_stamp");
+
+                    b.Property<DateTimeOffset>("CreatedOn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_on");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("email");
+
+                    b.Property<bool>("EmailConfirmed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("email_confirmed");
+
+                    b.Property<string>("FirstName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("first_name");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<DateTimeOffset?>("LastLogIn")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_log_in");
+
+                    b.Property<string>("LastName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("last_name");
+
+                    b.Property<bool>("LockoutEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("lockout_enabled");
+
+                    b.Property<DateTimeOffset?>("LockoutEnd")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lockout_end");
+
+                    b.Property<string>("NormalizedEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("normalized_email");
+
+                    b.Property<string>("NormalizedUserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("normalized_user_name");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("text")
+                        .HasColumnName("password_hash");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("phone_number");
+
+                    b.Property<bool>("PhoneNumberConfirmed")
+                        .HasColumnType("boolean")
+                        .HasColumnName("phone_number_confirmed");
+
+                    b.Property<string>("ProfilePictureUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("profile_picture_url");
+
+                    b.Property<string>("SecurityStamp")
+                        .HasColumnType("text")
+                        .HasColumnName("security_stamp");
+
+                    b.Property<bool>("TwoFactorEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("two_factor_enabled");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("user_name");
+
+                    b.HasKey("Id")
+                        .HasName("pk_asp_net_users");
+
+                    b.HasIndex("NormalizedEmail")
+                        .IsUnique()
+                        .HasDatabaseName("EmailIndex");
+
+                    b.HasIndex("NormalizedUserName")
+                        .IsUnique()
+                        .HasDatabaseName("UserNameIndex");
+
+                    b.ToTable("AspNetUsers", (string)null);
                 });
 
             modelBuilder.Entity("ConfidentVotesAPI.Models.Election", b =>
                 {
-                    b.Property<int>("ElectionID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("election_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElectionID"));
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
                     b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(10000)
+                        .HasColumnType("character varying(10000)")
                         .HasColumnName("description");
 
-                    b.Property<DateTime>("ElectionEnd")
+                    b.Property<DateTimeOffset>("ElectionEnd")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("election_end");
 
-                    b.Property<DateTime>("ElectionStart")
+                    b.Property<DateTimeOffset>("ElectionStart")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("election_start");
 
+                    b.Property<Guid>("InitiatorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("initiator_id");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
                         .HasColumnName("name");
 
-                    b.Property<int>("PersonID")
-                        .HasColumnType("integer")
-                        .HasColumnName("person_id");
-
-                    b.HasKey("ElectionID")
+                    b.HasKey("Id")
                         .HasName("pk_elections");
 
-                    b.HasIndex("PersonID")
-                        .HasDatabaseName("ix_elections_person_id");
+                    b.HasIndex("InitiatorId")
+                        .HasDatabaseName("ix_elections_initiator_id");
 
                     b.ToTable("elections", (string)null);
                 });
 
-            modelBuilder.Entity("ConfidentVotesAPI.Models.ElectionVoter", b =>
+            modelBuilder.Entity("ConfidentVotesAPI.Models.Option", b =>
                 {
-                    b.Property<int>("ElectionVoterID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("election_voter_id");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ElectionVoterID"));
-
-                    b.Property<int>("ElectionID")
-                        .HasColumnType("integer")
+                    b.Property<Guid>("ElectionId")
+                        .HasColumnType("uuid")
                         .HasColumnName("election_id");
 
-                    b.Property<int>("PersonID")
-                        .HasColumnType("integer")
-                        .HasColumnName("person_id");
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
 
-                    b.HasKey("ElectionVoterID")
-                        .HasName("pk_election_voters");
+                    b.HasKey("Id")
+                        .HasName("pk_options");
 
-                    b.HasIndex("ElectionID")
-                        .HasDatabaseName("ix_election_voters_election_id");
-
-                    b.HasIndex("PersonID", "ElectionID")
+                    b.HasIndex("ElectionId", "Title")
                         .IsUnique()
-                        .HasDatabaseName("ix_election_voters_person_id_election_id");
+                        .HasDatabaseName("ix_options_election_id_title");
 
-                    b.ToTable("election_voters", (string)null);
-                });
-
-            modelBuilder.Entity("ConfidentVotesAPI.Models.Person", b =>
-                {
-                    b.Property<int>("PersonID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("person_id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PersonID"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("email");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("first_name");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("last_name");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("password");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("user_name");
-
-                    b.HasKey("PersonID")
-                        .HasName("pk_users");
-
-                    b.ToTable("users", (string)null);
+                    b.ToTable("options", (string)null);
                 });
 
             modelBuilder.Entity("ConfidentVotesAPI.Models.Vote", b =>
                 {
-                    b.Property<int>("VoteID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("vote_id");
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VoteID"));
+                    b.Property<double>("Confidence")
+                        .HasColumnType("double precision")
+                        .HasColumnName("confidence");
 
-                    b.Property<int>("ChoiceID")
-                        .HasColumnType("integer")
-                        .HasColumnName("choice_id");
+                    b.Property<Guid>("OptionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("option_id");
 
-                    b.Property<int>("ElectionVoterID")
-                        .HasColumnType("integer")
-                        .HasColumnName("election_voter_id");
-
-                    b.Property<DateTime>("VoteDate")
+                    b.Property<DateTimeOffset>("VotedOn")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("vote_date");
+                        .HasColumnName("voted_on");
 
-                    b.HasKey("VoteID")
+                    b.Property<Guid>("VoterId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("voter_id");
+
+                    b.HasKey("Id")
                         .HasName("pk_votes");
 
-                    b.HasIndex("ChoiceID")
-                        .HasDatabaseName("ix_votes_choice_id");
+                    b.HasIndex("OptionId")
+                        .HasDatabaseName("ix_votes_option_id");
 
-                    b.HasIndex("ElectionVoterID")
+                    b.HasIndex("VoterId")
                         .IsUnique()
-                        .HasDatabaseName("ix_votes_election_voter_id");
+                        .HasDatabaseName("ix_votes_voter_id");
 
                     b.ToTable("votes", (string)null);
                 });
 
-            modelBuilder.Entity("ConfidentVotesAPI.Models.Choice", b =>
+            modelBuilder.Entity("ConfidentVotesAPI.Models.Voter", b =>
                 {
-                    b.HasOne("ConfidentVotesAPI.Models.Election", "Election")
-                        .WithMany("Choices")
-                        .HasForeignKey("ElectionID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_choices_elections_election_id");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
 
-                    b.Navigation("Election");
+                    b.Property<Guid>("AppUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("app_user_id");
+
+                    b.Property<Guid>("ElectionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("election_id");
+
+                    b.Property<double>("Weight")
+                        .HasColumnType("double precision")
+                        .HasColumnName("weight");
+
+                    b.HasKey("Id")
+                        .HasName("pk_voters");
+
+                    b.HasIndex("ElectionId")
+                        .HasDatabaseName("ix_voters_election_id");
+
+                    b.HasIndex("AppUserId", "ElectionId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_voters_app_user_id_election_id");
+
+                    b.ToTable("voters", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text")
+                        .HasColumnName("claim_type");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text")
+                        .HasColumnName("claim_value");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_asp_net_role_claims");
+
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_asp_net_role_claims_role_id");
+
+                    b.ToTable("AspNetRoleClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimType")
+                        .HasColumnType("text")
+                        .HasColumnName("claim_type");
+
+                    b.Property<string>("ClaimValue")
+                        .HasColumnType("text")
+                        .HasColumnName("claim_value");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_asp_net_user_claims");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_asp_net_user_claims_user_id");
+
+                    b.ToTable("AspNetUserClaims", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text")
+                        .HasColumnName("login_provider");
+
+                    b.Property<string>("ProviderKey")
+                        .HasColumnType("text")
+                        .HasColumnName("provider_key");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("text")
+                        .HasColumnName("provider_display_name");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("LoginProvider", "ProviderKey")
+                        .HasName("pk_asp_net_user_logins");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_asp_net_user_logins_user_id");
+
+                    b.ToTable("AspNetUserLogins", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("role_id");
+
+                    b.HasKey("UserId", "RoleId")
+                        .HasName("pk_asp_net_user_roles");
+
+                    b.HasIndex("RoleId")
+                        .HasDatabaseName("ix_asp_net_user_roles_role_id");
+
+                    b.ToTable("AspNetUserRoles", (string)null);
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("LoginProvider")
+                        .HasColumnType("text")
+                        .HasColumnName("login_provider");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("text")
+                        .HasColumnName("value");
+
+                    b.HasKey("UserId", "LoginProvider", "Name")
+                        .HasName("pk_asp_net_user_tokens");
+
+                    b.ToTable("AspNetUserTokens", (string)null);
                 });
 
             modelBuilder.Entity("ConfidentVotesAPI.Models.Election", b =>
                 {
-                    b.HasOne("ConfidentVotesAPI.Models.Person", "Initiator")
+                    b.HasOne("ConfidentVotesAPI.Models.AppUser", "Initiator")
                         .WithMany("InitiatedElections")
-                        .HasForeignKey("PersonID")
+                        .HasForeignKey("InitiatorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_elections_users_person_id");
+                        .HasConstraintName("fk_elections_asp_net_users_initiator_id");
 
                     b.Navigation("Initiator");
                 });
 
-            modelBuilder.Entity("ConfidentVotesAPI.Models.ElectionVoter", b =>
+            modelBuilder.Entity("ConfidentVotesAPI.Models.Option", b =>
                 {
                     b.HasOne("ConfidentVotesAPI.Models.Election", "Election")
-                        .WithMany("Voters")
-                        .HasForeignKey("ElectionID")
+                        .WithMany("Options")
+                        .HasForeignKey("ElectionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_election_voters_elections_election_id");
-
-                    b.HasOne("ConfidentVotesAPI.Models.Person", "Person")
-                        .WithMany("ElectionsVoters")
-                        .HasForeignKey("PersonID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_election_voters_users_person_id");
+                        .HasConstraintName("fk_options_elections_election_id");
 
                     b.Navigation("Election");
-
-                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("ConfidentVotesAPI.Models.Vote", b =>
                 {
-                    b.HasOne("ConfidentVotesAPI.Models.Choice", "Choice")
+                    b.HasOne("ConfidentVotesAPI.Models.Option", "Option")
                         .WithMany("Votes")
-                        .HasForeignKey("ChoiceID")
+                        .HasForeignKey("OptionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_votes_choices_choice_id");
+                        .HasConstraintName("fk_votes_options_option_id");
 
-                    b.HasOne("ConfidentVotesAPI.Models.ElectionVoter", "ElectionVoter")
+                    b.HasOne("ConfidentVotesAPI.Models.Voter", "Voter")
                         .WithOne("Vote")
-                        .HasForeignKey("ConfidentVotesAPI.Models.Vote", "ElectionVoterID")
+                        .HasForeignKey("ConfidentVotesAPI.Models.Vote", "VoterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_votes_election_voters_election_voter_id");
+                        .HasConstraintName("fk_votes_voters_voter_id");
 
-                    b.Navigation("Choice");
+                    b.Navigation("Option");
 
-                    b.Navigation("ElectionVoter");
+                    b.Navigation("Voter");
                 });
 
-            modelBuilder.Entity("ConfidentVotesAPI.Models.Choice", b =>
+            modelBuilder.Entity("ConfidentVotesAPI.Models.Voter", b =>
                 {
-                    b.Navigation("Votes");
+                    b.HasOne("ConfidentVotesAPI.Models.AppUser", "AppUser")
+                        .WithMany("RelatedVoters")
+                        .HasForeignKey("AppUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_voters_users_app_user_id");
+
+                    b.HasOne("ConfidentVotesAPI.Models.Election", "Election")
+                        .WithMany("Voters")
+                        .HasForeignKey("ElectionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_voters_elections_election_id");
+
+                    b.Navigation("AppUser");
+
+                    b.Navigation("Election");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
+                {
+                    b.HasOne("ConfidentVotesAPI.AppRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_asp_net_role_claims_asp_net_roles_role_id");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<System.Guid>", b =>
+                {
+                    b.HasOne("ConfidentVotesAPI.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_asp_net_user_claims_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<System.Guid>", b =>
+                {
+                    b.HasOne("ConfidentVotesAPI.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_asp_net_user_logins_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
+                {
+                    b.HasOne("ConfidentVotesAPI.AppRole", null)
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_asp_net_user_roles_asp_net_roles_role_id");
+
+                    b.HasOne("ConfidentVotesAPI.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_asp_net_user_roles_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
+                {
+                    b.HasOne("ConfidentVotesAPI.Models.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_asp_net_user_tokens_asp_net_users_user_id");
+                });
+
+            modelBuilder.Entity("ConfidentVotesAPI.Models.AppUser", b =>
+                {
+                    b.Navigation("InitiatedElections");
+
+                    b.Navigation("RelatedVoters");
                 });
 
             modelBuilder.Entity("ConfidentVotesAPI.Models.Election", b =>
                 {
-                    b.Navigation("Choices");
+                    b.Navigation("Options");
 
                     b.Navigation("Voters");
                 });
 
-            modelBuilder.Entity("ConfidentVotesAPI.Models.ElectionVoter", b =>
+            modelBuilder.Entity("ConfidentVotesAPI.Models.Option", b =>
                 {
-                    b.Navigation("Vote");
+                    b.Navigation("Votes");
                 });
 
-            modelBuilder.Entity("ConfidentVotesAPI.Models.Person", b =>
+            modelBuilder.Entity("ConfidentVotesAPI.Models.Voter", b =>
                 {
-                    b.Navigation("ElectionsVoters");
-
-                    b.Navigation("InitiatedElections");
+                    b.Navigation("Vote");
                 });
 #pragma warning restore 612, 618
         }
