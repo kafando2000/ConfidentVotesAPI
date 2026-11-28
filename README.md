@@ -1,5 +1,5 @@
 # REST API for elections management
-## API is aimed at management elections either for a small ones or in the future implementation for  nation-wide elections management. 
+## The API is aimed at management elections either for a small ones or in the future implementation for  nation-wide elections management. 
 
 In this project, the following functionalities have been implemented:
   * Complete data base schema and integration with ASPNetCore EF and PostgreSql.
